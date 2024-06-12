@@ -1,15 +1,19 @@
 import { Router } from "express";
-import {LoginUser,RegisterUser,getAllUsers,getCurrentUser, getUsersByPrefix,getUserEmail} from "../controllers/userController.js"
+import {LoginUser,RegisterUser,getAllUsers,getCurrentUser, getUsersByPrefix,getUserEmail,addUserToContact,getContacts,getUsersByIds,logoutUser} from "../controllers/userController.js"
 import ensureLoggedIn from "../middleware/authChecker.js"
 
 const router = Router();
 
 router.post('/login',LoginUser);
 router.post('/register',RegisterUser);
+router.post('/addUser',addUserToContact);
+router.post('/getUsersByIds',getUsersByIds);
 
 router.get('/getCurrentUser',getCurrentUser);
 router.get('/getUsersByPrefix',getUsersByPrefix);
 router.get('/getAllUsers',getAllUsers);
+router.get('/getContacts',getContacts);
 router.get('/getUserEmail',ensureLoggedIn,getUserEmail);
+router.get('/logout',ensureLoggedIn,logoutUser);
 
 export default router;

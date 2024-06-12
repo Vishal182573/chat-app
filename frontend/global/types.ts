@@ -10,11 +10,12 @@ export interface User{
 };
 
 export interface SidebarProps {
-    users: User[];
+    userIds: Array<string>;
     onUserClick: (user: User) => void; // Add this prop to handle user click
 }
 
 export interface Chats{
-    chat:Array<string>,
-    user:User,
+    userId:string,
+    message:string,
+    seen:boolean,
 };

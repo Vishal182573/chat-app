@@ -18,6 +18,15 @@ const LoginUser = asyncHandler(async(req,res)=>{
     }
 });
 
+const logoutUser = asyncHandler(async(req,res)=>{
+    req.session.destroy(err => {
+      if (err) {
+          return res.status(500).send('Unable to logout');
+      }
+      return res.status(201).json({message:'Logged out successfully'});
+  });
+})
+
 const RegisterUser = asyncHandler(async(req,res)=>{
     const {username,email,contactNumber,password,photographUri} = req.body;
     if(!contactNumber || !email || !username || !password || !photographUri) return res.status(400).json({message:"Bad Request"});
@@ -79,8 +88,71 @@ const getUsersByPrefix = asyncHandler(async (req, res) => {
 });
 
 const getUserEmail = asyncHandler(async(req,res)=>{
-  res.status(201).json(req.session.user);
+  res.status(201).send(req.session.user);
 })
+
+const addUserToContact = asyncHandler(async(req,res)=>{
+  const {userId1,userId2} = req.body;
+
+  if(!userId1 || !userId2){
+    return res.status(400).json({message:"userId required"});
+  }
+  const user = await User.findOne({userId:userId1});
+
+  if(!user){
+    return res.status(404).json({message:"User not found"});
+  }
+  const isPresent = user.contacts.includes(userId2);
+
+  if(isPresent){
+    return res.status(201).json({message:"User already in list"});
+  }else {
+    user.contacts.push(userId2);
+    const updateContactsList = await user.save();
+    return res.status(201).json(updateContactsList);
+  }
+})
+
+const getContacts = asyncHandler(async(req,res)=>{
+  const {userId} = req.query;
+
+  if(!userId){
+    return res.status(400).json({message:"User id is must"});
+  }
+
+  try {
+    const user = await User.findOne({ userId });
+
+    if(!user){
+      return res.status(404).json({message:"User not found"});
+    } else {
+      const contacts = await User.find({ userId: { $in: user.contacts } });
+
+      return res.status(201).json({contacts:contacts});
+    }
+  } catch (error) {
+    console.log("Error:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+});
+
+const getUsersByIds = asyncHandler(async (req, res) => {
+  try {
+      const { userIds } = req.body;
+
+      if (!userIds || !Array.isArray(userIds)) {
+          return res.status(400).json({ message: "Bad request: userIds must be an array of strings" });
+      }
+
+      const users = await User.find({ userId: { $in: userIds } });
+
+      return res.status(201).json(users);
+  } catch (err) {
+      console.error("Error in getUsersByIds controller:", err);
+      return res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
 
 export {
     LoginUser,
@@ -89,4 +161,8 @@ export {
     getCurrentUser,
     getUsersByPrefix,
     getUserEmail,
+    addUserToContact,
+    getContacts,
+    getUsersByIds,
+    logoutUser,
 };

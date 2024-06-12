@@ -1,27 +1,38 @@
 "use client"
 import { Badge } from "@/components/ui/badge"
+import axios from "axios"
 import { useEffect, useState } from "react"
 
 export default function Footer() {
-    const [color,setColor] = useState("green")
-    
-    
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      // Toggle between colors
-      setColor(prevColor => prevColor === "blank" ? "green" : "blank");
-    }, 500); // Interval time set to 500 milliseconds
-
-    // Clean up the interval to avoid memory leaks
-    return () => clearInterval(intervalId);
-  }, []); // Empty dependency array means this effect runs after every render
+    const [color,setColor] = useState("red")
+    useEffect(() => {
+      const getUser = async () => {
+        try {
+          const response = await axios.get('http://localhost:3001/api/user/getUserEmail', {
+            withCredentials: true // This ensures cookies are included in the request
+          });
+          if (response.status == 201) {
+            setColor("green")
+          }
+          else {
+            setColor("red");
+            console.log("User is unauthorized");
+          }
+        }
+        catch (err: any) {
+          setColor("red");
+          console.log("Error", err)
+        }
+      };
   
+      getUser();
+    }, [])
     return (
         <footer className="w-full">
             <section className="flex justify-end items-center">
-             {/* for this render accoding to session if user logged in then show green blink light and logged in and if session not logged in the show Offline and continuos red light */}
-             <Badge className="mr-2">Logged In</Badge>
-             <div className={`bg-${color}-500 rounded-full w-4 h-4`}></div>
+             <Badge className="mr-2 text-xs">{color==="green"? "Logged In": "Not Signed "}
+             </Badge>
+             <div className={`bg-${color}-500 rounded-full w-2 h-2`}></div>
             </section>
         </footer>
     )

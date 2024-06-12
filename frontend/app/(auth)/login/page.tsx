@@ -59,7 +59,7 @@ export default function Login() {
   return (
     <section className="w-full h-screen flex justify-center items-center p-3 text-white">
       <div className="w-full h-full bg-slate-950 opacity-90 rounded-2xl p-8 flex justify-center">
-      <div className="space-y-4 w-[400px] flex flex-col shadow-xl p-8 border border-white rounded-2xl">
+      <div className="space-y-4 w-[400px] flex flex-col justify-center shadow-xl p-8 border border-white rounded-2xl">
         <h1 className="font-bold text-3xl text-center">Login</h1>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">

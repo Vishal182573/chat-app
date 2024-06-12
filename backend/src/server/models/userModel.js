@@ -23,7 +23,7 @@ const userSchema = new Schema({
     type:String,
   },
   contacts:{
-    type:Array,
+    type:[String],
   },
 },{timestamps:true});
 export default model("User", userSchema);

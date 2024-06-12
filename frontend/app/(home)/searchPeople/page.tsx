@@ -18,6 +18,7 @@ export default function About() {
   const router = useRouter();
     const [prefix,setPrefix] = useState("");
     const [users,setUsers] = useState <User[]> ([]);
+    const [currentUser,setCurrentUser] = useState <User> ();
     useEffect(()=>{
       const handleChange= async()=>{
         try{
@@ -35,7 +36,10 @@ export default function About() {
 
     const handleClick= async(user:User)=>{
       try{
-        const response = await axios.put(`http://localhost:3001/api/user/addUser?userId=${user.userId}`);
+        const response = await axios.post("http://localhost:3001/api/user/addUser",{
+          userId1:currentUser?.userId,
+          userId2:user.userId
+        });
         if(response.status==201){
           router.push('/');
         }
@@ -47,18 +51,28 @@ export default function About() {
     useEffect(()=>{
       const getUser = async()=>{
         try{
-          const response = await axios.get('http://localhost:3001/api/getUserEmail', {
+          const response = await axios.get('http://localhost:3001/api/user/getUserEmail', {
             withCredentials: true // This ensures cookies are included in the request
         });
           if(response.status==201){
-            console.log(response.data);
+            try{
+              const email = response.data.email;
+              const user = await axios.get("http://localhost:3001/api/user/getCurrentUser",{
+                params: { email: email},
+              })
+            if(user.status==201){
+              setCurrentUser(user.data);
+            }
+            }catch(err:any){
+              console.log("Error",err.message);
+            }
           }
           else{
-            console.log("unable to get user");
+            console.log("User is unauthorized");
           }
         }
         catch(err:any){
-          console.log("Error",err.message)
+          console.log("Error",err)
         }
       }
       getUser();
@@ -71,8 +85,8 @@ export default function About() {
         <ScrollArea className="h-[70vh] w-full border-white border-[1px] rounded-lg text-white">
             <div className="p-4">
                 <h2 className="text-2xl font-bold text-center sticky top-2 bg-slate-600 rounded-lg">People List</h2>
-                {users.map((user) => (
-                    <div className="p-4 border rounded-lg border-white mt-2 flex justify-between items-center cursor-pointer" onClick={() => handleClick(user)}>
+                {users.map((user,index) => (
+                    <div className="p-4 border rounded-lg border-white mt-2 flex justify-between items-center cursor-pointer" onClick={() => handleClick(user)} key={index}>
                         <div className="flex flex-col space-y-1 text-white">
                             <div key={user.username} className="font-bold">
                                 {user.username}

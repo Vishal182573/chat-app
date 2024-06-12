@@ -4,6 +4,7 @@ import express,{json} from "express"
 import connnectDb from "./config/dbconnection.js";
 import cors from "cors"
 import userKeRoutes from "./routes/userRoutes.js"
+import chatKeRoutes from "./routes/chatRoutes.js"
 import session from "express-session"
 import MongoStore from "connect-mongo"
 
@@ -18,7 +19,7 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({ mongoUrl: 'mongodb+srv://sharmavs9205:ruddo@chat-app.o637uex.mongodb.net/' }),
-    cookie: { secure: false } // Set to true if using HTTPS
+    cookie: { secure: false, maxAge: 30 * 60 * 1000  } // Set to true if using HTTPS
 }));
 app.use(cors({
     origin: "http://localhost:3000",
@@ -37,6 +38,7 @@ app.use(cors({
 // the routes below are handling the http requests but for handling socket.io requests we use socket.io
 
 app.use('/api/user',userKeRoutes);
+app.use('/api/chat',chatKeRoutes);
 app.get("/",(req,res)=>{
     res.send("Server is running");
 })

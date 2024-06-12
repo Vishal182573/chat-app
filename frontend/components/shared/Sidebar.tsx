@@ -3,21 +3,37 @@
 import Image from "next/image"
 import { Button } from "../ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { SidebarProps } from "@/global/types"
+import { SidebarProps,User } from "@/global/types"
 import {
     Avatar,
     AvatarFallback,
     AvatarImage,
 } from "@/components/ui/avatar"
 import { APPLOGO } from "@/public"
+import { useEffect, useState } from "react"
+import axios from "axios"
 
-export default function Sidebar({ users, onUserClick }: SidebarProps) {
+export default function Sidebar({ userIds, onUserClick }: SidebarProps) {
+    const [users,setUsers] = useState <User[]> ([]);
+    useEffect(()=>{
+        const getUsers = async()=>{
+        try{
+            const response = await axios.post("http://localhost:3001/api/user/getUsersByIds",{userIds});
+            if(response.status==201){
+                setUsers(response.data);
+            }
+        }catch(err:any){
+            console.log("Error",err.message);
+        }
+        };
+        getUsers();
+    },[userIds]);
     return (
-        <ScrollArea className="h-[75vh] w-full lg:w-96 border-white border-r-[1px] flex-2 ">
+        <ScrollArea className="h-full w-full lg:w-96 border-white border-r-[1px] flex-2 ">
             <div className="p-4">
                 <h2 className="text-2xl font-bold">Contacts List</h2>
-                {users.map((user) => (
-                    <div className="p-4 border rounded-lg border-white mt-2 flex justify-between items-center cursor-pointer" onClick={() => onUserClick(user)}>
+                {users.map((user,index) => (
+                    <div className="p-4 border rounded-lg border-white mt-2 flex justify-between items-center cursor-pointer" onClick={() => onUserClick(user)} key={index}>
                         <div className="flex flex-col space-y-1">
                             <div key={user.username} className="font-bold">
                                 {user.username}
