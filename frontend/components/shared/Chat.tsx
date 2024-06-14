@@ -25,7 +25,7 @@ export default function Chat({ user }: UserProps) {
       const response = await axios.post('https://chat-app-1-5qqj.onrender.com/api/chat/addChat', {
         userId1: currentUser?.userId,
         userId2: user.userId,
-      });
+      },{withCredentials: true});
       if (response.status === 201) {
         setChats(response.data.messages);
       }
@@ -61,7 +61,8 @@ export default function Chat({ user }: UserProps) {
         message: message,
       };
 
-      const response = await axios.post("https://chat-app-1-5qqj.onrender.com/api/chat/updateChat", newChat);
+      const response = await axios.post("https://chat-app-1-5qqj.onrender.com/api/chat/updateChat", newChat,{
+        withCredentials: true});
       if (response.status === 201) {
         setMessage("");
         const sock: Chats = { 

@@ -18,7 +18,7 @@ export default function Sidebar({ userIds, onUserClick }: SidebarProps) {
     useEffect(()=>{
         const getUsers = async()=>{
         try{
-            const response = await axios.post("https://chat-app-1-5qqj.onrender.com/api/user/getUsersByIds",{userIds});
+            const response = await axios.post("https://chat-app-1-5qqj.onrender.com/api/user/getUsersByIds",{userIds},{withCredentials: true});
             if(response.status==201){
                 setUsers(response.data);
             }

@@ -22,7 +22,7 @@ export default function About() {
     useEffect(()=>{
       const handleChange= async()=>{
         try{
-          const response = await axios.get(`https://chat-app-1-5qqj.onrender.com/api/user/getUsersByPrefix?prefix=${prefix}`)
+          const response = await axios.get(`https://chat-app-1-5qqj.onrender.com/api/user/getUsersByPrefix?prefix=${prefix}`,{withCredentials:true})
           if(response.status==201){
               setUsers(response.data);
           }
@@ -39,7 +39,7 @@ export default function About() {
         const response = await axios.post("https://chat-app-1-5qqj.onrender.com/api/user/addUser",{
           userId1:currentUser?.userId,
           userId2:user.userId
-        });
+        },{withCredentials:true});
         if(response.status==201){
           router.push('/');
         }
@@ -59,6 +59,7 @@ export default function About() {
               const email = response.data.email;
               const user = await axios.get("https://chat-app-1-5qqj.onrender.com/api/user/getCurrentUser",{
                 params: { email: email},
+                withCredentials:true,
               })
             if(user.status==201){
               setCurrentUser(user.data);

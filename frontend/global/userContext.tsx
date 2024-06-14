@@ -29,6 +29,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
           const email = response.data.email;
           const userResponse = await axios.get('https://chat-app-1-5qqj.onrender.com/api/user/getCurrentUser', {
             params: { email },
+            withCredentials: true, // This ensures cookies are included in the request
           });
           if (userResponse.status === 201) {
             setContacts(userResponse.data.contacts);
