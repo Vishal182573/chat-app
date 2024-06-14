@@ -31,14 +31,14 @@ app.use(
       mongoUrl:
         "mongodb+srv://sharmavs9205:ruddo@chat-app.o637uex.mongodb.net/", // Replace with your MongoDB connection URL
     }),
-    cookie: { secure: false, maxAge: 30 * 60 * 1000 }, // Set to true if using HTTPS
+    cookie: { secure: true, maxAge: 30 * 60 * 1000 }, // Set to true if using HTTPS
   })
 );
 
 // Enable CORS
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: "https://chat-app-pi-steel.vercel.app",
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -48,12 +48,15 @@ app.use(
 // Use routes
 app.use("/api/user", userKeRoutes);
 app.use("/api/chat", chatKeRoutes);
+app.get("/",(req,res)=>{
+  res.send("server is working");
+})
 
 // Set up Socket.IO server
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000", // Update to your client URL
+    origin: "https://chat-app-pi-steel.vercel.app", // Update to your client URL
     methods: ["GET", "POST"],
     credentials: true
   }
