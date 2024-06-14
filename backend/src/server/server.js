@@ -1,48 +1,80 @@
-// import {Server} from "socket.io"
-// import http from "http"
-import express,{json} from "express"
-import connnectDb from "./config/dbconnection.js";
-import cors from "cors"
-import userKeRoutes from "./routes/userRoutes.js"
-import chatKeRoutes from "./routes/chatRoutes.js"
-import session from "express-session"
-import MongoStore from "connect-mongo"
+// Import necessary modules
+import express, { json } from "express";
+import connectDb from "./config/dbconnection.js";
+import cors from "cors";
+import userKeRoutes from "./routes/userRoutes.js";
+import chatKeRoutes from "./routes/chatRoutes.js";
+import session from "express-session";
+import MongoStore from "connect-mongo";
 
+// Import Socket.IO
+import http from "http";
+import { Server } from "socket.io";
 
-connnectDb();
+// Connect to MongoDB
+connectDb();
+
+// Initialize Express app
 const app = express();
 const port = 3001;
 
+// Set up JSON middleware
 app.use(json());
-app.use(session({
-    secret: 'U2FsdGVkX1+gvqvXLk8VcSx7+xHJbbEX3uQyEzzRfKM=', // Change this to a strong, unique key
+
+// Set up session middleware
+app.use(
+  session({
+    secret: "U2FsdGVkX1+gvqvXLk8VcSx7+xHJbbEX3uQyEzzRfKM=", // Replace with your secret key
     resave: false,
     saveUninitialized: false,
-    store: MongoStore.create({ mongoUrl: 'mongodb+srv://sharmavs9205:ruddo@chat-app.o637uex.mongodb.net/' }),
-    cookie: { secure: false, maxAge: 30 * 60 * 1000  } // Set to true if using HTTPS
-}));
-app.use(cors({
+    store: MongoStore.create({
+      mongoUrl:
+        "mongodb+srv://sharmavs9205:ruddo@chat-app.o637uex.mongodb.net/", // Replace with your MongoDB connection URL
+    }),
+    cookie: { secure: false, maxAge: 30 * 60 * 1000 }, // Set to true if using HTTPS
+  })
+);
+
+// Enable CORS
+app.use(
+  cors({
     origin: "http://localhost:3000",
     methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials:true,
+    credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
-}))
+  })
+);
 
-// const server = http.createServer(app); 
-// const io = new Server(server);
+// Use routes
+app.use("/api/user", userKeRoutes);
+app.use("/api/chat", chatKeRoutes);
 
-//socket.io routes 
-// io.on('connection',(socket)=>{
-//      console.log("A new user connected",socket.id);
-// });
-// the routes below are handling the http requests but for handling socket.io requests we use socket.io
+// Set up Socket.IO server
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000", // Update to your client URL
+    methods: ["GET", "POST"],
+    credentials: true
+  }
+});
 
-app.use('/api/user',userKeRoutes);
-app.use('/api/chat',chatKeRoutes);
-app.get("/",(req,res)=>{
-    res.send("Server is running");
-})
+// Socket.IO event handling
+io.on("connection", (socket) => {
+  // console.log("A user connected");
 
-app.listen(port,()=>{
-    console.log("Server is runnig");
-})
+  // Example: Handle chat messages
+  socket.on("chat message", (msg) => {
+    // Broadcast message to all clients
+    io.emit("chat message", msg);
+  });
+
+  socket.on("disconnect", () => {
+    // console.log("User disconnected");
+  });
+});
+
+// Start the server
+server.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
