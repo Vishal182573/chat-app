@@ -20,13 +20,15 @@ import {
 } from "@/components/ui/dropdown-menu"
 import axios from "axios"
 import { useRouter } from "next/navigation"
+import { useUser } from "@/global/userContext"
 
 
 export default function MainHeader() {
+    const {currentUser,contacts} = useUser();
     const router = useRouter();
     const userLogout = async()=>{
         try{
-            const response = await axios.get("http://localhost:3001/api/user/logout",{withCredentials:true});
+            const response = await axios.get("https://chat-app-1-5qqj.onrender.com/api/user/logout",{withCredentials:true});
             if(response.status==201){
                 alert("User logged out");
                 router.push("/login");
@@ -36,14 +38,13 @@ export default function MainHeader() {
         }
     };
     return (
-        <header className="w-full p-2 rounded-2xl  bg-blue-500 sticky top-0 z-50">
+        <header className="w-full p-2 rounded-2xl  bg-blue-500 z-50">
             <section className="flex justify-between items-center lg:px-2">
-                <div className="flex justify-between items-center font-bold space-x-5 lg:text-xl text-sm">
+                <div className="flex justify-between items-center font-bold space-x-5 lg:text-xl text-xs">
                     <Image
                         alt="app-logo"
                         src={APPLOGO}
-                        width={45}
-                        className="rounded-full"
+                        className="rounded-full w-6 lg:w-18"
                     />
                     <span>V-chat</span>
                 </div>
@@ -59,7 +60,7 @@ export default function MainHeader() {
                         </Link>
                     </Button>
                     <div className="flex justify-end items-center ">
-                        <Button variant={"ghost"} size={"sm"}>
+                        <Button variant={"ghost"} size={"sm"} className="text-xs w">
                             <Link href={"/searchPeople"}>
                                 Search People
                             </Link>
@@ -70,8 +71,7 @@ export default function MainHeader() {
                                 <Avatar className="border mr-5 hidden lg:block text-black" >
                                     <AvatarFallback>
                                         {/* <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" /> */}
-                                        {/* {session.user.name.charAt(0).toUpperCase()} */}
-                                        V
+                                        {currentUser?.username.charAt(0).toUpperCase()}
                                     </AvatarFallback>
                                 </Avatar>
                             </DropdownMenuTrigger>
@@ -83,7 +83,7 @@ export default function MainHeader() {
                                     </Link>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem className="lg:hidden">
-                                    <Link href={"/"}>
+                                    <Link href={"/about"}>
                                         About
                                     </Link>
                                 </DropdownMenuItem>

@@ -3,10 +3,20 @@ import { MdSend } from "react-icons/md"; // Import the send icon from react-icon
 import { Input, InputProps } from "../ui/input"; // Adjust the path if necessary
 import { cn } from "@/lib/utils";
 
-const InputWithSendButton = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, children, ...props }, ref) => {
+interface InputWithSendButtonProps extends InputProps {
+  onSubmit: () => void;
+}
+
+const InputWithSendButton = React.forwardRef<HTMLInputElement, InputWithSendButtonProps>(
+  ({ className, type, children, onSubmit, ...props }, ref) => {
+    const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === "Enter") {
+        onSubmit();
+      }
+    };
+
     return (
-      <div className="relative flex items-center ">
+      <div className="relative flex items-center">
         <Input
           type={type}
           className={cn(
@@ -14,15 +24,16 @@ const InputWithSendButton = React.forwardRef<HTMLInputElement, InputProps>(
             className
           )}
           ref={ref}
+          onKeyPress={handleKeyPress}
           {...props}
         />
         {children}
         <button
           type="button"
           className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 transition duration-200"
-          onClick={() => console.log("Send button clicked!")}
+          onClick={onSubmit}
         >
-          <MdSend/>
+          <MdSend />
         </button>
       </div>
     );

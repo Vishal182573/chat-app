@@ -1,14 +1,14 @@
 "use client";
-import Footer from "@/components/shared/Footer";
+import { UserProvider } from "@/global/userContext";
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-      <>
+    <UserProvider>
         <main>{children}
         </main>
-      </>
+    </UserProvider>
   );
 }

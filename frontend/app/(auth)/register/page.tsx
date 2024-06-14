@@ -51,7 +51,7 @@ export default function Register() {
         console.log(values);
         try {
             const response = await axios.post(
-                "http://localhost:3001/api/user/register",
+                "https://chat-app-1-5qqj.onrender.com/api/user/register",
                 values
             );
 

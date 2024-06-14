@@ -31,7 +31,7 @@ export default function RootLayout({
         <Image
         alt="Background image"
         src={BG1}
-        className="h-screen w-screen bg-content absolute z-0"
+        className="h-full w-screen bg-content absolute z-0"
         />
         {children}
       </body>

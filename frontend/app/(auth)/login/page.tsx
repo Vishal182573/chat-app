@@ -36,7 +36,7 @@ export default function Login() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try{
-      const response = await axios.post("http://localhost:3001/api/user/login",values,{
+      const response = await axios.post("https://chat-app-1-5qqj.onrender.com/api/user/login",values,{
         withCredentials: true // This ensures cookies are included in the request
       });
       if(response.status==201){

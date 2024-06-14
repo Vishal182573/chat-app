@@ -22,7 +22,7 @@ export default function About() {
     useEffect(()=>{
       const handleChange= async()=>{
         try{
-          const response = await axios.get(`http://localhost:3001/api/user/getUsersByPrefix?prefix=${prefix}`)
+          const response = await axios.get(`https://chat-app-1-5qqj.onrender.com/api/user/getUsersByPrefix?prefix=${prefix}`)
           if(response.status==201){
               setUsers(response.data);
           }
@@ -36,7 +36,7 @@ export default function About() {
 
     const handleClick= async(user:User)=>{
       try{
-        const response = await axios.post("http://localhost:3001/api/user/addUser",{
+        const response = await axios.post("https://chat-app-1-5qqj.onrender.com/api/user/addUser",{
           userId1:currentUser?.userId,
           userId2:user.userId
         });
@@ -51,13 +51,13 @@ export default function About() {
     useEffect(()=>{
       const getUser = async()=>{
         try{
-          const response = await axios.get('http://localhost:3001/api/user/getUserEmail', {
+          const response = await axios.get('https://chat-app-1-5qqj.onrender.com/api/user/getUserEmail', {
             withCredentials: true // This ensures cookies are included in the request
         });
           if(response.status==201){
             try{
               const email = response.data.email;
-              const user = await axios.get("http://localhost:3001/api/user/getCurrentUser",{
+              const user = await axios.get("https://chat-app-1-5qqj.onrender.com/api/user/getCurrentUser",{
                 params: { email: email},
               })
             if(user.status==201){

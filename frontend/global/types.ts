@@ -14,8 +14,10 @@ export interface SidebarProps {
     onUserClick: (user: User) => void; // Add this prop to handle user click
 }
 
+
 export interface Chats{
     userId:string,
+    userId2:string,
     message:string,
     seen:boolean,
-};
+}
