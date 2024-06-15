@@ -24,20 +24,18 @@ import { useUser } from "@/global/userContext"
 
 
 export default function MainHeader() {
-    // Configuration object for Axios request
-    const config = {
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}` // Assuming you have a token stored in localStorage
-        },
-        timeout: 5000 // Timeout in milliseconds
-    };
-    const { currentUser, contacts } = useUser();
+    const {currentUser,contacts} = useUser();
     const router = useRouter();
-    const userLogout = () => {
-        localStorage.removeItem('token');
-        alert("User logged out");
-        router.push("/login");
+    const userLogout = async()=>{
+        try{
+            const response = await axios.get("https://chat-app-1-5qqj.onrender.com/api/user/logout",{withCredentials:true});
+            if(response.status==201){
+                alert("User logged out");
+                router.push("/login");
+            }
+        }catch(err:any){
+            console.log("Error",err.message);
+        }
     };
     return (
         <header className="w-full p-2 rounded-2xl  bg-blue-500 z-50">

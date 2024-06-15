@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import axios from 'axios';
-import jwt_decode from 'jwt-decode';  // Correct import statement for jwt-decode
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation'; 
 import { User } from './types'; // Adjust the import path as necessary
 
 interface UserContextType {
@@ -20,45 +19,22 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const [contacts, setContacts] = useState<string[]>([]);
   const router = useRouter();
 
-  // Function to decode JWT and get user email
-  function getEmailFromToken(): string | null {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      return null;
-    }
-    try {
-      const decodedToken = jwt_decode<{ email: string }>(token);
-      return decodedToken.email;
-    } catch (error) {
-      console.error('Failed to decode token:', error);
-      return null;
-    }
-  }
-  
   useEffect(() => {
     const getUser = async () => {
-      const email = getEmailFromToken();
-      if (!email) {
-        router.push('/login');
-        console.log('No email found in token');
-        return;
-      }
-
-      // Configuration object for Axios request
-      const config = {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        params: { email },
-        timeout: 5000 // Timeout in milliseconds
-      };
-
       try {
-        const userResponse = await axios.get('https://chat-app-1-5qqj.onrender.com/api/user/getCurrentUser', config);
-        if (userResponse.status === 201) { // Change status code check to 200
-          setContacts(userResponse.data.contacts);
-          setCurrentUser(userResponse.data);
+        const response = await axios.get('https://chat-app-1-5qqj.onrender.com/api/user/getUserEmail', {
+          withCredentials: true, // This ensures cookies are included in the request
+        });
+        if (response.status === 201) {
+          const email = response.data.email;
+          const userResponse = await axios.get('https://chat-app-1-5qqj.onrender.com/api/user/getCurrentUser', {
+            params: { email },
+            withCredentials: true, // This ensures cookies are included in the request
+          });
+          if (userResponse.status === 201) {
+            setContacts(userResponse.data.contacts);
+            setCurrentUser(userResponse.data);
+          }
         } else {
           router.push('/login');
           console.log('User is unauthorized');

@@ -1,87 +1,62 @@
 import asyncHandler from "express-async-handler";
 import User from "../models/userModel.js";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
 
 const LoginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
-  try {
-    if (!email || !password)
-      return res.status(400).json({ message: "Email or Password is missing" });
-    const user = await User.findOne({
-      email,
-    });
-    if (!user) return res.status(404).json({ message: "user not found" });
-
-    // Validate password
-    const isMatch = await bcrypt.compare(password, user.password);
-
-    if (!isMatch)
-      return res.status(401).json({ message: "Invalid credentials" });
-
-    // Create and return JWT
-    const payload = {
-      email: user.email,
-    };
+  if (!email || !password)
+    return res.status(400).json({ message: "Email or Password is missing" });
+  const user = await User.findOne({
+    email,
+    password,
+  });
+  if (!user) return res.status(404).json({ message: "user not found" });
+  else {
     user.status = "Online";
-    await user.save();
-    jwt.sign(
-      payload,
-      "U2FsdGVkX1+gvqvXLk8VcSx7+xHJbbEX3uQyEzzRfKM=",
-      { expiresIn: "1h" },
-      (err, token) => {
-        if (err) throw err;
-        res.status(201).json({ token });
+    const updateUser = await user.save();
+    req.session.user = { email: user.email };
+    if (updateUser) return res.status(201).json(user);
+  }
+});
+
+const logoutUser = asyncHandler(async (req, res) => {
+  try {
+    const { email } = req.session.user;
+    const user = await User.findOne({ email:email });
+    user.status = "Offline";
+    const updatedUser = await user.save();
+    if (!updatedUser)
+      return res.status(500).json({ message: "Internal server Error" });
+    req.session.destroy((err) => {
+      if (err) {
+        return res.status(500).send("Unable to logout");
       }
-    );
-    
+      return res.status(201).json({ message: "Logged out successfully" });
+    });
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server Error");
+    return res.status(500).json({ message: "Inernal server error" });
   }
 });
 
 const RegisterUser = asyncHandler(async (req, res) => {
   const { username, email, contactNumber, password, photographUri } = req.body;
-  
-  if (!contactNumber || !email || !username || !password || !photographUri) {
+  if (!contactNumber || !email || !username || !password || !photographUri)
     return res.status(400).json({ message: "Bad Request" });
-  }
-
-  // Check if user already exists
   const userExists = await User.findOne({ email });
-  if (userExists) {
-    return res.status(400).json({ message: "User already exists" });
-  }
-
-  // Generate a userId (example: U-1234)
+  if (userExists)
+    return res.status(400).json({ message: "User already Exists" });
   const userId = `U-${Math.floor(1000 + Math.random() * 9000)}`;
-
-  try {
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password,10);
-
-    // Create new user with hashed password
-    const user = new User({
-      userId,
-      username,
-      email,
-      contactNumber,
-      password: hashedPassword, // Store hashed password
-      photographUri,
-      status: "Offline",
-      contacts: [],
-    });
-
-    // Save user to database
-    const createdUser = await user.save();
-
-    // Respond with userId (or any other relevant response)
-    return res.status(201).json(createdUser.userId);
-  } catch (err) {
-    console.error("Error registering user:", err);
-    return res.status(500).json({ message: "Internal server error" });
-  }
+  const user = new User({
+    userId,
+    username,
+    email,
+    contactNumber,
+    password,
+    photographUri: "V",
+    status: "Offline",
+    contacts: [],
+  });
+  const createdUser = await user.save();
+  return res.status(201).json(createdUser.userId);
 });
 
 const getAllUsers = asyncHandler(async (req, res) => {
@@ -126,6 +101,10 @@ const getUsersByPrefix = asyncHandler(async (req, res) => {
   }
 });
 
+const getUserEmail = asyncHandler(async (req, res) => {
+  res.status(201).send(req.session.user);
+});
+
 const addUserToContact = asyncHandler(async (req, res) => {
   const { userId1, userId2 } = req.body;
 
@@ -148,7 +127,7 @@ const addUserToContact = asyncHandler(async (req, res) => {
     user2.contacts.push(userId1);
     const updateContactsList1 = await user1.save();
     const updateContactsList2 = await user2.save();
-    return res.status(201).json({ updateContactsList1, updateContactsList2 });
+    return res.status(201).json({updateContactsList1,updateContactsList2});
   }
 });
 

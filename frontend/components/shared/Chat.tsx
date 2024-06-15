@@ -14,14 +14,6 @@ const socket = io('https://chat-app-1-5qqj.onrender.com', {
 });
 
 export default function Chat({ user }: UserProps) {
-  // Configuration object for Axios request
-  const config = {
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${localStorage.getItem('token')}` // Assuming you have a token stored in localStorage
-    },
-    timeout: 5000 // Timeout in milliseconds
-  };
   const { currentUser } = useUser();
   const [message, setMessage] = useState("");
   const [chats, setChats] = useState<Chats[]>([]);
@@ -33,7 +25,7 @@ export default function Chat({ user }: UserProps) {
       const response = await axios.post('https://chat-app-1-5qqj.onrender.com/api/chat/addChat', {
         userId1: currentUser?.userId,
         userId2: user.userId,
-      },config);
+      },{withCredentials: true});
       if (response.status === 201) {
         setChats(response.data.messages);
       }
@@ -48,8 +40,8 @@ export default function Chat({ user }: UserProps) {
     // Listen for incoming chat messages
     socket.on('chat message', (newChat: Chats) => {
       if ((newChat.userId === currentUser?.userId && newChat.userId2 === user.userId) ||
-        (newChat.userId === user.userId && newChat.userId2 === currentUser?.userId)) {
-        setChats((prevChats) => [newChat, ...prevChats]);
+          (newChat.userId === user.userId && newChat.userId2 === currentUser?.userId)) {
+        setChats((prevChats) => [newChat,...prevChats]);
         scrollToBottom();
       }
     });
@@ -69,16 +61,17 @@ export default function Chat({ user }: UserProps) {
         message: message,
       };
 
-      const response = await axios.post("https://chat-app-1-5qqj.onrender.com/api/chat/updateChat", newChat, config);
+      const response = await axios.post("https://chat-app-1-5qqj.onrender.com/api/chat/updateChat", newChat,{
+        withCredentials: true});
       if (response.status === 201) {
         setMessage("");
-        const sock: Chats = {
+        const sock: Chats = { 
           userId: currentUser?.userId!,
           userId2: user.userId,
           message: message,
           seen: false,
         };
-
+        
         socket.emit('chat message', sock); // Emit the new chat message to the server
         scrollToBottom();
       }
