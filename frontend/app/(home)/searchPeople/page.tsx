@@ -13,6 +13,7 @@ import { APPLOGO } from "@/public"
 import { User } from "@/global/types";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { BACKEND_URL } from "@/global/constants";
 
 export default function About() {
   const router = useRouter();
@@ -22,7 +23,7 @@ export default function About() {
     useEffect(()=>{
       const handleChange= async()=>{
         try{
-          const response = await axios.get(`https://chat-app-1-5qqj.onrender.com/api/user/getUsersByPrefix?prefix=${prefix}`,{withCredentials:true})
+          const response = await axios.get(`${BACKEND_URL}/api/user/getUsersByPrefix?prefix=${prefix}`,{withCredentials:true})
           if(response.status==201){
               setUsers(response.data);
           }
@@ -36,7 +37,7 @@ export default function About() {
 
     const handleClick= async(user:User)=>{
       try{
-        const response = await axios.post("https://chat-app-1-5qqj.onrender.com/api/user/addUser",{
+        const response = await axios.post(`${BACKEND_URL}/api/user/addUser`,{
           userId1:currentUser?.userId,
           userId2:user.userId
         },{withCredentials:true});
@@ -51,13 +52,13 @@ export default function About() {
     useEffect(()=>{
       const getUser = async()=>{
         try{
-          const response = await axios.get('https://chat-app-1-5qqj.onrender.com/api/user/getUserEmail', {
+          const response = await axios.get(`${BACKEND_URL}/api/user/getUserEmail`, {
             withCredentials: true // This ensures cookies are included in the request
         });
           if(response.status==201){
             try{
               const email = response.data.email;
-              const user = await axios.get("https://chat-app-1-5qqj.onrender.com/api/user/getCurrentUser",{
+              const user = await axios.get(`${BACKEND_URL}/api/user/getCurrentUser`,{
                 params: { email: email},
                 withCredentials:true,
               })

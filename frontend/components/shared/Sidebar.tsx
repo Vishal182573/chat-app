@@ -12,13 +12,14 @@ import {
 import { APPLOGO } from "@/public"
 import { useEffect, useState } from "react"
 import axios from "axios"
+import { BACKEND_URL } from "@/global/constants"
 
 export default function Sidebar({ userIds, onUserClick }: SidebarProps) {
     const [users,setUsers] = useState <User[]> ([]);
     useEffect(()=>{
         const getUsers = async()=>{
         try{
-            const response = await axios.post("https://chat-app-1-5qqj.onrender.com/api/user/getUsersByIds",{userIds},{withCredentials: true});
+            const response = await axios.post(`${BACKEND_URL}/api/user/getUsersByIds`,{userIds},{withCredentials: true});
             if(response.status==201){
                 setUsers(response.data);
             }

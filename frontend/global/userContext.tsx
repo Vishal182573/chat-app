@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import axios from 'axios';
 import { useRouter } from 'next/navigation'; 
 import { User } from './types'; // Adjust the import path as necessary
+import { BACKEND_URL } from './constants';
 
 interface UserContextType {
   currentUser: User | null;
@@ -18,16 +19,14 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [contacts, setContacts] = useState<string[]>([]);
   const router = useRouter();
-
+  const getEmail = ()=>{
+    return localStorage.getItem('email');
+  }
   useEffect(() => {
     const getUser = async () => {
+      const email = getEmail();
       try {
-        const response = await axios.get('https://chat-app-1-5qqj.onrender.com/api/user/getUserEmail', {
-          withCredentials: true, // This ensures cookies are included in the request
-        });
-        if (response.status === 201) {
-          const email = response.data.email;
-          const userResponse = await axios.get('https://chat-app-1-5qqj.onrender.com/api/user/getCurrentUser', {
+          const userResponse = await axios.get(`${BACKEND_URL}/api/user/getCurrentUser`, {
             params: { email },
             withCredentials: true, // This ensures cookies are included in the request
           });
@@ -35,11 +34,8 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
             setContacts(userResponse.data.contacts);
             setCurrentUser(userResponse.data);
           }
-        } else {
-          router.push('/login');
-          console.log('User is unauthorized');
-        }
-      } catch (err) {
+        } 
+      catch (err) {
         router.push('/login');
         console.log('Error', err);
       }

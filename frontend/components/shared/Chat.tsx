@@ -4,12 +4,13 @@ import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { useUser } from "@/global/userContext";
 import io from "socket.io-client";
+import { BACKEND_URL } from "@/global/constants";
 
 interface UserProps {
   user: User;
 }
 
-const socket = io('https://chat-app-1-5qqj.onrender.com', {
+const socket = io(`${BACKEND_URL}`, {
   withCredentials: true, // Ensures credentials like cookies are sent
 });
 
@@ -22,7 +23,7 @@ export default function Chat({ user }: UserProps) {
   // Function to fetch chats
   const getChats = async () => {
     try {
-      const response = await axios.post('https://chat-app-1-5qqj.onrender.com/api/chat/addChat', {
+      const response = await axios.post(`${BACKEND_URL}/api/chat/addChat`, {
         userId1: currentUser?.userId,
         userId2: user.userId,
       },{withCredentials: true});
@@ -61,7 +62,7 @@ export default function Chat({ user }: UserProps) {
         message: message,
       };
 
-      const response = await axios.post("https://chat-app-1-5qqj.onrender.com/api/chat/updateChat", newChat,{
+      const response = await axios.post(`${BACKEND_URL}/api/chat/updateChat`, newChat,{
         withCredentials: true});
       if (response.status === 201) {
         setMessage("");

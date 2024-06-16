@@ -6,6 +6,7 @@ import userKeRoutes from "./routes/userRoutes.js";
 import chatKeRoutes from "./routes/chatRoutes.js";
 import session from "express-session";
 import MongoStore from "connect-mongo";
+import {FRONTEND_URL} from "./constants.js"
 
 // Import Socket.IO
 import http from "http";
@@ -20,6 +21,7 @@ const port = process.env.PORT || 3001;
 
 // Set up JSON middleware
 app.use(json());
+app.use(express.urlencoded({ extended: true }));
 
 // Set up session middleware
 app.use(
@@ -31,14 +33,14 @@ app.use(
       mongoUrl:
         "mongodb+srv://sharmavs9205:ruddo@chat-app.o637uex.mongodb.net/", // Replace with your MongoDB connection URL
     }),
-    cookie: { secure: true, maxAge: 30 * 60 * 1000 }, // Set to true if using HTTPS
+    cookie: { secure: true ,httpOnly: true,maxAge: 30 * 60 * 1000 }, // Set to true if using HTTPS
   })
 );
 
 // Enable CORS
 app.use(
   cors({
-    origin: "https://chat-app-pi-steel.vercel.app",
+    origin: `${FRONTEND_URL}`,
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -56,7 +58,7 @@ app.get("/",(req,res)=>{
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "https://chat-app-pi-steel.vercel.app", // Update to your client URL
+    origin: `${FRONTEND_URL}`, // Update to your client URL
     methods: ["GET", "POST"],
     credentials: true
   }

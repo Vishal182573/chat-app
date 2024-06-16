@@ -21,6 +21,7 @@ import {
 import axios from "axios"
 import { useRouter } from "next/navigation"
 import { useUser } from "@/global/userContext"
+import { BACKEND_URL } from "@/global/constants"
 
 
 export default function MainHeader() {
@@ -28,8 +29,9 @@ export default function MainHeader() {
     const router = useRouter();
     const userLogout = async()=>{
         try{
-            const response = await axios.get("https://chat-app-1-5qqj.onrender.com/api/user/logout",{withCredentials:true});
+            const response = await axios.get(`${BACKEND_URL}/api/user/logout`,{withCredentials:true});
             if(response.status==201){
+                localStorage.removeItem('email');
                 alert("User logged out");
                 router.push("/login");
             }

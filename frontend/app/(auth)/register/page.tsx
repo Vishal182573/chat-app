@@ -15,6 +15,7 @@ import {
 } from "../../../components/ui/form";
 import { Input } from "../../../components/ui/input";
 import { useRouter } from "next/navigation";
+import { BACKEND_URL } from "@/global/constants";
 
 // Define the schema using zod
 const formSchema = z
@@ -51,7 +52,7 @@ export default function Register() {
         console.log(values);
         try {
             const response = await axios.post(
-                "https://chat-app-1-5qqj.onrender.com/api/user/register",
+                `${BACKEND_URL}/api/user/register`,
                 values
             );
 

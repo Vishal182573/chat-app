@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 import { Separator } from "../../../components/ui/separator"
 import { FaGithub, FaGoogle} from 'react-icons/fa';
 import axios from "axios"
+import { BACKEND_URL } from "@/global/constants";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -36,10 +37,11 @@ export default function Login() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try{
-      const response = await axios.post("https://chat-app-1-5qqj.onrender.com/api/user/login",values,{
+      const response = await axios.post(`${BACKEND_URL}/api/user/login`,values,{
         withCredentials: true // This ensures cookies are included in the request
       });
       if(response.status==201){
+        localStorage.setItem('email',values.email);
         alert("Login Succesfull")
         router.push('/');
       }
