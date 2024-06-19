@@ -58,7 +58,7 @@ export default function Register() {
 
             if (response.status === 201) {
                 alert("User registered succesfully")
-                router.push("/login");
+                router.push("/auth/signin");
                 console.log("Success:", response.data);
             } else {
                 throw new Error("Something went wrong");
@@ -71,13 +71,13 @@ export default function Register() {
 
     return (
         <section className="w-full h-screen flex justify-center items-center p-3 ">
-            <div className="w-full h-full bg-slate-950 opacity-90 rounded-2xl flex justify-center p-2">
+            <div className="w-full h-full bg-slate-950 opacity-90 rounded-2xl flex justify-center p-8">
                 <Form {...form}>
                     <form
                         onSubmit={form.handleSubmit(onSubmit)}
-                        className="space-y-3 flex flex-col justify-start px-10 rounded-2xl w-[500px] border-white border-[1px] text-sm font-bold text-white"
+                        className="space-y-5 flex flex-col justify-start p-10 rounded-2xl w-[500px] border-white border-[1px] text-sm font-bold text-white"
                     >
-                        <div className="font-bold text-3xl text-center">Register</div>
+                        <div className="font-bold text-3xl text-center mb-6">Register</div>
 
 
                         <FormField

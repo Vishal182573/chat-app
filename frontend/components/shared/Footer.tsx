@@ -2,10 +2,22 @@
 import { Badge } from "@/components/ui/badge"
 import axios from "axios"
 import { useEffect, useState } from "react"
-import { useUser } from "@/global/userContext"
+import { useSession, signIn } from "next-auth/react";
+import { User } from "@/global/types";
 
 export default function Footer() {
-  const {currentUser,contacts} = useUser();
+  const { data: session, status } = useSession({
+    required: true,
+    onUnauthenticated() {
+      signIn(undefined, { callbackUrl: '/' });
+    },
+  });
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  useEffect(() => {
+    if (session?.user) {
+      setCurrentUser(session.user as User);
+    }
+  }, [session]);
     const [color,setColor] = useState("red")
     useEffect(() => {
       const getUser = async () => {

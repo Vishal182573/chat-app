@@ -20,23 +20,38 @@ import {
 } from "@/components/ui/dropdown-menu"
 import axios from "axios"
 import { useRouter } from "next/navigation"
-import { useUser } from "@/global/userContext"
 import { BACKEND_URL } from "@/global/constants"
+import { useSession, signIn } from "next-auth/react";
+import { useState, useEffect } from "react"
+import { User } from "@/global/types"
 
 
 export default function MainHeader() {
-    const {currentUser,contacts} = useUser();
+    const { data: session, status } = useSession({
+        required: true,
+        onUnauthenticated() {
+            signIn(undefined, { callbackUrl: '/' });
+        },
+    });
     const router = useRouter();
-    const userLogout = async()=>{
+    const [currentUser, setCurrentUser] = useState<User | null>(null);
+    useEffect(() => {
+        if (session?.user) {
+            setCurrentUser(session.user as User);
+        }
+    }, [session]);
+
+    const userLogout = async () => {
         try{
-            const response = await axios.get(`${BACKEND_URL}/api/user/logout`,{withCredentials:true});
+            const response = await axios.get(`${BACKEND_URL}/api/user/logout?email=${session?.user?.email}`)
             if(response.status==201){
-                localStorage.removeItem('email');
-                alert("User logged out");
-                router.push("/login");
+                router.push('/api/auth/signout')
+            }
+            else {
+                alert("Something went wrong")
             }
         }catch(err:any){
-            console.log("Error",err.message);
+            console.log("Error",err.message)
         }
     };
     return (
@@ -73,7 +88,7 @@ export default function MainHeader() {
                                 <Avatar className="border mr-5 hidden lg:block text-black" >
                                     <AvatarFallback>
                                         {/* <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" /> */}
-                                        {currentUser?.username.charAt(0).toUpperCase()}
+                                        {currentUser?.username.charAt(0).toUpperCase() }
                                     </AvatarFallback>
                                 </Avatar>
                             </DropdownMenuTrigger>
@@ -89,14 +104,14 @@ export default function MainHeader() {
                                         About
                                     </Link>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem className="lg:hidden">
-                                    <Link href={"/"}>
+                                <DropdownMenuItem >
+                                    <Link href={"/userInfo"}>
                                         Profile
                                     </Link>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem>
-                                    <Link href={"/userSetting"}>
-                                        Settings
+                                    <Link href={"/updateUser"}>
+                                        Update UserInfo
                                     </Link>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem>

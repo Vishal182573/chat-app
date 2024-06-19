@@ -4,8 +4,6 @@ import connectDb from "./config/dbconnection.js";
 import cors from "cors";
 import userKeRoutes from "./routes/userRoutes.js";
 import chatKeRoutes from "./routes/chatRoutes.js";
-import session from "express-session";
-import MongoStore from "connect-mongo";
 import {FRONTEND_URL} from "./constants.js"
 
 // Import Socket.IO
@@ -23,19 +21,6 @@ const port = process.env.PORT || 3001;
 app.use(json());
 app.use(express.urlencoded({ extended: true }));
 
-// Set up session middleware
-app.use(
-  session({
-    secret: "U2FsdGVkX1+gvqvXLk8VcSx7+xHJbbEX3uQyEzzRfKM=", // Replace with your secret key
-    resave: false,
-    saveUninitialized: false,
-    store: MongoStore.create({
-      mongoUrl:
-        "mongodb+srv://sharmavs9205:ruddo@chat-app.o637uex.mongodb.net/", // Replace with your MongoDB connection URL
-    }),
-    cookie: { secure: true ,httpOnly: true,maxAge: 30 * 60 * 1000 }, // Set to true if using HTTPS
-  })
-);
 
 // Enable CORS
 app.use(

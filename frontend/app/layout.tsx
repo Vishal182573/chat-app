@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import AuthProvider from "@/context/AuthProvider";
 import "./globals.css";
 import { Inter as FontSans } from "next/font/google"
 const fontSans = FontSans({
@@ -28,12 +29,14 @@ export default function RootLayout({
           fontSans.variable,
           inter.className
         )}>
-        <Image
+        {/* <Image
         alt="Background image"
         src={BG1}
         className="h-full w-screen bg-content absolute z-0"
-        />
+        /> */}
+        <AuthProvider>
         {children}
+        </AuthProvider>
       </body>
     </html>
   );

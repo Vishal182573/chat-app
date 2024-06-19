@@ -1,19 +1,16 @@
 import { Router } from "express";
-import {LoginUser,RegisterUser,getAllUsers,getCurrentUser, getUsersByPrefix,getUserEmail,addUserToContact,getContacts,getUsersByIds,logoutUser} from "../controllers/userController.js"
-import ensureLoggedIn from "../middleware/authChecker.js"
+import {LoginUser,RegisterUser, getUsersByPrefix,addUserToContact,getContacts,getUsersByIds,logoutUser,updateUser} from "../controllers/userController.js"
 
 const router = Router();
 
 router.post('/login',LoginUser);
 router.post('/register',RegisterUser);
-router.post('/addUser',ensureLoggedIn,addUserToContact);
-router.post('/getUsersByIds',ensureLoggedIn,getUsersByIds);
+router.post('/addUser',addUserToContact);
+router.post('/updateUser',updateUser);
+router.post('/getUsersByIds',getUsersByIds);
 
-router.get('/getCurrentUser',ensureLoggedIn,getCurrentUser);
-router.get('/getUsersByPrefix',ensureLoggedIn,getUsersByPrefix);
-router.get('/getAllUsers',ensureLoggedIn,getAllUsers);
-router.get('/getContacts',ensureLoggedIn,getContacts);
-router.get('/getUserEmail',ensureLoggedIn,getUserEmail);
-router.get('/logout',ensureLoggedIn,logoutUser);
+router.get('/getUsersByPrefix',getUsersByPrefix);
+router.get('/getContacts',getContacts);
+router.get('/logout',logoutUser);
 
 export default router;

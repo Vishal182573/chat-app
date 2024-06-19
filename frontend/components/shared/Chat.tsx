@@ -2,9 +2,9 @@ import { Chats, User } from "@/global/types";
 import { InputWithSendButton } from "../forms/InputWithSend";
 import { useEffect, useState, useRef } from "react";
 import axios from "axios";
-import { useUser } from "@/global/userContext";
 import io from "socket.io-client";
 import { BACKEND_URL } from "@/global/constants";
+import { useSession, signIn } from "next-auth/react";
 
 interface UserProps {
   user: User;
@@ -15,7 +15,18 @@ const socket = io(`${BACKEND_URL}`, {
 });
 
 export default function Chat({ user }: UserProps) {
-  const { currentUser } = useUser();
+  const { data: session, status } = useSession({
+    required: true,
+    onUnauthenticated() {
+      signIn(undefined, { callbackUrl: '/' });
+    },
+  });
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  useEffect(() => {
+    if (session?.user) {
+      setCurrentUser(session.user as User);
+    }
+  }, [session]);
   const [message, setMessage] = useState("");
   const [chats, setChats] = useState<Chats[]>([]);
   const scrollAreaRef = useRef<HTMLDivElement>(null);

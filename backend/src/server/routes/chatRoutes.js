@@ -1,9 +1,8 @@
 import { Router } from "express";
 import {addChat,updateChat} from "../controllers/chatControllers.js"
-import ensureLoggedIn from "../middleware/authChecker.js";
 const router = Router();
 
-router.post('/addChat',ensureLoggedIn,addChat);
-router.post('/updateChat',ensureLoggedIn,updateChat);
+router.post('/addChat',addChat);
+router.post('/updateChat',updateChat);
 
 export default router;

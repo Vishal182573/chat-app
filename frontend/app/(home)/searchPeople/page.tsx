@@ -12,14 +12,26 @@ import {
 import { APPLOGO } from "@/public"
 import { User } from "@/global/types";
 import axios from "axios";
-import { useRouter } from "next/navigation";
+import { useRouter ,redirect} from "next/navigation";
 import { BACKEND_URL } from "@/global/constants";
+import { useSession, signIn } from "next-auth/react";
 
 export default function About() {
   const router = useRouter();
-    const [prefix,setPrefix] = useState("");
-    const [users,setUsers] = useState <User[]> ([]);
-    const [currentUser,setCurrentUser] = useState <User> ();
+  const { data: session, status } = useSession({
+    required: true,
+    onUnauthenticated() {
+      signIn(undefined, { callbackUrl: '/' });
+    },
+  });
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+    useEffect(() => {
+        if (session?.user) {
+            setCurrentUser(session.user as User);
+        }
+    }, [session]);
+  const [prefix,setPrefix] = useState("");
+  const [users,setUsers] = useState <User[]> ([]);
     useEffect(()=>{
       const handleChange= async()=>{
         try{
@@ -49,37 +61,9 @@ export default function About() {
         alert(err.message)
       }
     }
-    useEffect(()=>{
-      const getUser = async()=>{
-        try{
-          const response = await axios.get(`${BACKEND_URL}/api/user/getUserEmail`, {
-            withCredentials: true // This ensures cookies are included in the request
-        });
-          if(response.status==201){
-            try{
-              const email = response.data.email;
-              const user = await axios.get(`${BACKEND_URL}/api/user/getCurrentUser`,{
-                params: { email: email},
-                withCredentials:true,
-              })
-            if(user.status==201){
-              setCurrentUser(user.data);
-            }
-            }catch(err:any){
-              console.log("Error",err.message);
-            }
-          }
-          else{
-            console.log("User is unauthorized");
-          }
-        }
-        catch(err:any){
-          console.log("Error",err)
-        }
-      }
-      getUser();
-    },[])
-
+    if (status === "loading") {
+      return <div>Loading...</div>;
+    }
   return (
     <section className="w-full h-screen flex justify-center items-center p-3">
       <div className="w-full h-full bg-slate-950 opacity-90 rounded-2xl p-12">

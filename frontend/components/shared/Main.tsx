@@ -4,13 +4,40 @@ import { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
 import Chat from "./Chat";
 import { User } from "@/global/types";
-import { useUser } from "@/global/userContext";
 import { Button } from "../ui/button";
 import { IoMdArrowBack } from 'react-icons/io';
 import { ScrollArea } from "../ui/scroll-area";
+import { useSession, signIn } from "next-auth/react";
+import { BACKEND_URL } from "@/global/constants";
+import axios from "axios";
 
 export default function Main() {
-  const { currentUser, contacts } = useUser();
+  const { data: session, status } = useSession({
+    required: true,
+    onUnauthenticated() {
+      signIn(undefined, { callbackUrl: '/' });
+    },
+  });
+  const [contacts, setContacts] = useState([]);
+  useEffect(() => {
+    const getContacts = async () => {
+      try {
+        const response = await axios.get(`${BACKEND_URL}/api/user/getContacts`, {
+          params: { email: session?.user?.email },
+          withCredentials: true, // Ensure credentials are sent with the request
+        });
+        if (response.status == 201) {
+          setContacts(response.data);
+        }
+        else {
+          console.log("Something went wrong");
+        }
+      } catch (err: any) {
+        console.log("Error", err.message)
+      }
+    }
+    getContacts();
+  }, [session])
   const [list, setList] = useState("block");
   const [chatShow, setChatShow] = useState("hidden");
   const [clickedUser, setClickedUser] = useState<User>({
@@ -30,7 +57,9 @@ export default function Main() {
     setChatShow("block");
     setList("hidden");
   };
-
+  if(!status){
+    return <div>Loading...</div>
+  }
   return (
     <main className="w-full p-2 rounded-2xl h-[75vh] flex-1 lg:mt-4">
       <section className="flex justify-start items-center h-full">
@@ -39,7 +68,7 @@ export default function Main() {
         </ScrollArea>
         <div className={`${chatShow} lg:block h-full w-full`}>
           <Button variant={"ghost"} size={"sm"} onClick={() => { setChatShow("hidden"); setList("block"); }} className={`lg:hidden`}>
-             Go back
+            Go back
           </Button>
           <Chat user={clickedUser} />
         </div>

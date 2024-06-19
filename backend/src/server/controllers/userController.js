@@ -13,25 +13,20 @@ const LoginUser = asyncHandler(async (req, res) => {
   else {
     user.status = "Online";
     const updateUser = await user.save();
-    req.session.user = { email: user.email };
     if (updateUser) return res.status(201).json(user);
   }
 });
 
 const logoutUser = asyncHandler(async (req, res) => {
   try {
-    const { email } = req.session.user;
+    const { email } = req.query;
     const user = await User.findOne({ email:email });
     user.status = "Offline";
     const updatedUser = await user.save();
-    if (!updatedUser)
+    if (!updatedUser){
       return res.status(500).json({ message: "Internal server Error" });
-    req.session.destroy((err) => {
-      if (err) {
-        return res.status(500).send("Unable to logout");
-      }
-      return res.status(201).json({ message: "Logged out successfully" });
-    });
+    }
+    return res.status(201).json({message:"Logout Sucessfull"})
   } catch (err) {
     return res.status(500).json({ message: "Inernal server error" });
   }
@@ -59,26 +54,6 @@ const RegisterUser = asyncHandler(async (req, res) => {
   return res.status(201).json(createdUser.userId);
 });
 
-const getAllUsers = asyncHandler(async (req, res) => {
-  const users = await User.find({});
-  res.status(201).json(users);
-});
-
-const getCurrentUser = asyncHandler(async (req, res) => {
-  const { email } = req.query;
-  if (!email) {
-    return res.status(400).json({ message: "email is required" });
-  }
-  const user = await User.findOne({
-    email,
-  });
-
-  if (user) {
-    return res.status(201).json(user);
-  } else {
-    return res.status(404).json({ message: "User not found" });
-  }
-});
 
 const getUsersByPrefix = asyncHandler(async (req, res) => {
   const { prefix } = req.query;
@@ -101,9 +76,6 @@ const getUsersByPrefix = asyncHandler(async (req, res) => {
   }
 });
 
-const getUserEmail = asyncHandler(async (req, res) => {
-  res.status(201).send(req.session.user);
-});
 
 const addUserToContact = asyncHandler(async (req, res) => {
   const { userId1, userId2 } = req.body;
@@ -132,22 +104,19 @@ const addUserToContact = asyncHandler(async (req, res) => {
 });
 
 const getContacts = asyncHandler(async (req, res) => {
-  const { userId } = req.query;
+  const { email } = req.query;
 
-  if (!userId) {
+  if (!email) {
     return res.status(400).json({ message: "User id is must" });
   }
 
   try {
-    const user = await User.findOne({ userId });
+    const user = await User.findOne({ email});
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
-    } else {
-      const contacts = await User.find({ userId: { $in: user.contacts } });
-
-      return res.status(201).json({ contacts: contacts });
-    }
+    } 
+    return res.status(201).json(user.contacts);
   } catch (error) {
     console.log("Error:", error);
     return res.status(500).json({ message: "Server error" });
@@ -173,15 +142,41 @@ const getUsersByIds = asyncHandler(async (req, res) => {
   }
 });
 
+const updateUser = asyncHandler(async (req, res) => {
+  if (!req.body || !req.body.email) {
+    return res.status(400).json({ message: "Bad request" });
+  }
+
+  const { email, username, contactnumber, password, photographUri } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update user details
+    user.username = username || user.username;
+    user.contactnumber = contactnumber || user.contactnumber;
+    user.password = password || user.password; // Make sure to handle password hashing if necessary
+    user.photographUri = photographUri || user.photographUri;
+
+    await user.save();
+
+    res.status(201).json({ message: "User updated successfully", user });
+  } catch (error) {
+    console.error("Error updating user:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 export {
   LoginUser,
   RegisterUser,
-  getAllUsers,
-  getCurrentUser,
   getUsersByPrefix,
-  getUserEmail,
   addUserToContact,
   getContacts,
   getUsersByIds,
   logoutUser,
+  updateUser,
 };
