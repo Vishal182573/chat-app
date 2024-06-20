@@ -1,6 +1,6 @@
 import { Chats, User } from "@/global/types";
 import { InputWithSendButton } from "../forms/InputWithSend";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, ChangeEvent } from "react";
 import axios from "axios";
 import io from "socket.io-client";
 import { BACKEND_URL } from "@/global/constants";
@@ -26,6 +26,7 @@ export default function Chat({ user }: UserProps) {
   const [message, setMessage] = useState("");
   const [chats, setChats] = useState<Chats[]>([]);
   const [otherUserTyping, setOtherUserTyping] = useState(false);
+  const [typingTimeout, setTypingTimeout] = useState<ReturnType<typeof setTimeout> | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -101,6 +102,19 @@ export default function Chat({ user }: UserProps) {
     }
   };
 
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setMessage(e.target.value);
+    socket.emit('typing', { userId: currentUser?.userId, isTyping: e.target.value.length > 0 });
+
+    if (typingTimeout) {
+      clearTimeout(typingTimeout);
+    }
+
+    setTypingTimeout(setTimeout(() => {
+      socket.emit('typing', { userId: currentUser?.userId, isTyping: false });
+    }, 2000));
+  };
+
   const scrollToBottom = () => {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
@@ -131,10 +145,7 @@ export default function Chat({ user }: UserProps) {
       <InputWithSendButton
         className="p-5 w-full bg-slate-500 rounded-2xl"
         value={message}
-        onChange={(e:any) => {
-          setMessage(e.target.value);
-          socket.emit('typing', { userId: currentUser?.userId, isTyping: e.target.value.length > 0 });
-        }}
+        onChange={handleChange}
         onSubmit={handleSubmit}
         placeholder="Type your message..."
       />
