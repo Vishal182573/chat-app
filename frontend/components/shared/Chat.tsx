@@ -54,12 +54,12 @@ export default function Chat({ user }: UserProps) {
     socket.on('chat message', (newChat: Chats) => {
       if ((newChat.userId === currentUser?.userId && newChat.userId2 === user.userId) ||
         (newChat.userId === user.userId && newChat.userId2 === currentUser?.userId)) {
-        setChats((prevChats) => [newChat, ...prevChats]);
+        setChats((prevChats: Chats[]) => [newChat, ...prevChats]);
         scrollToBottom();
       }
     });
 
-    socket.on('typing', (typingData) => {
+    socket.on('typing', (typingData: { userId: string; isTyping: boolean }) => {
       if (typingData.userId === user.userId && typingData.isTyping) {
         setOtherUserTyping(true);
       } else {
@@ -101,11 +101,6 @@ export default function Chat({ user }: UserProps) {
     }
   };
 
-  const handleChange = (e) => {
-    setMessage(e.target.value);
-    socket.emit('typing', { userId: currentUser?.userId, isTyping: e.target.value.length > 0 });
-  };
-
   const scrollToBottom = () => {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
@@ -116,8 +111,8 @@ export default function Chat({ user }: UserProps) {
     <section className="w-full lg:flex flex-col border-blue-500 border-2 rounded-2xl p-2 text-sm font-bold lg:h-[75vh] lg:flex-1 overflow-hidden">
       <div className="w-full bg-slate-700 border-[1px] border-white p-3 rounded-xl flex justify-between items-center">
         <div className="flex justify-center items-center space-x-4">
-        <div>{user.username}</div>
-        {otherUserTyping && <div>Typing...</div>}
+          <div>{user.username}</div>
+          {otherUserTyping && <div>Typing...</div>}
         </div>
         <div>Status: {user.status}</div>
       </div>
@@ -136,7 +131,10 @@ export default function Chat({ user }: UserProps) {
       <InputWithSendButton
         className="p-5 w-full bg-slate-500 rounded-2xl"
         value={message}
-        onChange={handleChange}
+        onChange={(e:any) => {
+          setMessage(e.target.value);
+          socket.emit('typing', { userId: currentUser?.userId, isTyping: e.target.value.length > 0 });
+        }}
         onSubmit={handleSubmit}
         placeholder="Type your message..."
       />
