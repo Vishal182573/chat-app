@@ -58,6 +58,10 @@ io.on("connection", (socket) => {
     // Broadcast message to all clients
     io.emit("chat message", msg);
   });
+  
+  socket.on('typing', (data) => {
+    io.emit('typing', data);
+  });
 
   socket.on("disconnect", () => {
     // console.log("User disconnected");

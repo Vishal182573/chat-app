@@ -21,23 +21,25 @@ export default function Chat({ user }: UserProps) {
       signIn(undefined, { callbackUrl: '/' });
     },
   });
+
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [message, setMessage] = useState("");
+  const [chats, setChats] = useState<Chats[]>([]);
+  const [otherUserTyping, setOtherUserTyping] = useState(false);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (session?.user) {
       setCurrentUser(session.user as User);
     }
   }, [session]);
-  const [message, setMessage] = useState("");
-  const [chats, setChats] = useState<Chats[]>([]);
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
-  // Function to fetch chats
   const getChats = async () => {
     try {
       const response = await axios.post(`${BACKEND_URL}/api/chat/addChat`, {
         userId1: currentUser?.userId,
         userId2: user.userId,
-      },{withCredentials: true});
+      }, { withCredentials: true });
       if (response.status === 201) {
         setChats(response.data.messages);
       }
@@ -49,22 +51,28 @@ export default function Chat({ user }: UserProps) {
   useEffect(() => {
     getChats();
 
-    // Listen for incoming chat messages
     socket.on('chat message', (newChat: Chats) => {
       if ((newChat.userId === currentUser?.userId && newChat.userId2 === user.userId) ||
-          (newChat.userId === user.userId && newChat.userId2 === currentUser?.userId)) {
-        setChats((prevChats) => [newChat,...prevChats]);
+        (newChat.userId === user.userId && newChat.userId2 === currentUser?.userId)) {
+        setChats((prevChats) => [newChat, ...prevChats]);
         scrollToBottom();
       }
     });
 
-    // Clean up on component unmount
+    socket.on('typing', (typingData) => {
+      if (typingData.userId === user.userId && typingData.isTyping) {
+        setOtherUserTyping(true);
+      } else {
+        setOtherUserTyping(false);
+      }
+    });
+
     return () => {
       socket.off('chat message');
+      socket.off('typing');
     };
   }, [user, currentUser]);
 
-  // Function to handle form submission
   const handleSubmit = async () => {
     try {
       const newChat = {
@@ -73,17 +81,18 @@ export default function Chat({ user }: UserProps) {
         message: message,
       };
 
-      const response = await axios.post(`${BACKEND_URL}/api/chat/updateChat`, newChat,{
-        withCredentials: true});
+      const response = await axios.post(`${BACKEND_URL}/api/chat/updateChat`, newChat, {
+        withCredentials: true
+      });
       if (response.status === 201) {
         setMessage("");
-        const sock: Chats = { 
+        const sock: Chats = {
           userId: currentUser?.userId!,
           userId2: user.userId,
           message: message,
           seen: false,
         };
-        
+
         socket.emit('chat message', sock); // Emit the new chat message to the server
         scrollToBottom();
       }
@@ -92,7 +101,11 @@ export default function Chat({ user }: UserProps) {
     }
   };
 
-  // Function to scroll to the bottom of the chat area
+  const handleChange = (e) => {
+    setMessage(e.target.value);
+    socket.emit('typing', { userId: currentUser?.userId, isTyping: e.target.value.length > 0 });
+  };
+
   const scrollToBottom = () => {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
@@ -102,7 +115,10 @@ export default function Chat({ user }: UserProps) {
   return (
     <section className="w-full lg:flex flex-col border-blue-500 border-2 rounded-2xl p-2 text-sm font-bold lg:h-[75vh] lg:flex-1 overflow-hidden">
       <div className="w-full bg-slate-700 border-[1px] border-white p-3 rounded-xl flex justify-between items-center">
-        <div>{user.username} :- {user.contactnumber}</div>
+        <div className="flex justify-center items-center space-x-4">
+        <div>{user.username}</div>
+        {otherUserTyping && <div>Typing...</div>}
+        </div>
         <div>Status: {user.status}</div>
       </div>
       <div ref={scrollAreaRef} className="flex-1 p-4 h-[50vh] lg:h-[30rem] overflow-y-auto flex flex-col-reverse">
@@ -120,7 +136,7 @@ export default function Chat({ user }: UserProps) {
       <InputWithSendButton
         className="p-5 w-full bg-slate-500 rounded-2xl"
         value={message}
-        onChange={(e) => setMessage(e.target.value)}
+        onChange={handleChange}
         onSubmit={handleSubmit}
         placeholder="Type your message..."
       />
