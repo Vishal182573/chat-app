@@ -5,6 +5,9 @@ import axios from "axios";
 import io from "socket.io-client";
 import { BACKEND_URL } from "@/global/constants";
 import { useSession, signIn } from "next-auth/react";
+import { Avatar, AvatarFallback } from "../ui/avatar";
+import Image from "next/image";
+import { APPLOGO } from "@/public";
 
 interface UserProps {
   user: User;
@@ -130,7 +133,21 @@ export default function Chat({ user }: UserProps) {
           <div className="text-white">{user.username}</div>
           {otherUserTyping && <div className="text-green-500">Typing...</div>}
         </div>
-        <div className="text-white">Status: {user.status}</div>
+        <div className="text-white flex justify-center items-center space-x-6">
+          <div className="">
+          Status: {user.status}
+          </div>
+        <Avatar className="border border-black ">
+              {user.photographUri?
+              <AvatarFallback>
+                <Image alt={user.username} src={user.photographUri} width={50} height={50}/>
+              </AvatarFallback>:
+              <AvatarFallback>
+                <Image alt={user.username} src={APPLOGO} width={50} height={50} />
+              </AvatarFallback>
+              }
+            </Avatar>
+        </div>
       </div>
       <div ref={scrollAreaRef} className="flex-1 p-4 overflow-y-auto flex flex-col-reverse">
         {chats.map((chat, index) => (

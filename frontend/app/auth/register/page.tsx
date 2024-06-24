@@ -23,7 +23,7 @@ const formSchema = z.object({
     email: z.string().email({ message: "Must be a valid email address." }),
     contactNumber: z.string().min(10, { message: "Contact number must be at least 10 digits." }),
     password: z.string().min(6, { message: "Password must be at least 6 characters." }),
-    photographUri: z.string(),
+    photographUri: z.instanceof(File).refine(file => file.size > 0, { message: "File is required" }).optional(),
 });
 
 export default function Register() {
@@ -35,16 +35,43 @@ export default function Register() {
             email: "",
             contactNumber: "",
             password: "",
-            photographUri: "",
+            photographUri: undefined,
         },
     });
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
-        console.log(values);
         try {
+            let photographUri = '';
+
+            if (values.photographUri) {
+                const formData = new FormData();
+                formData.append('image', values.photographUri);
+
+                const uploadResponse = await axios.post(
+                    `${BACKEND_URL}/api/image/upload`,
+                    formData,
+                    {
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                        },
+                    }
+                );
+
+                if (uploadResponse.status === 201) {
+                    photographUri = uploadResponse.data.imageUrl;
+                } else {
+                    throw new Error("Image upload failed");
+                }
+            }
+
+            const registrationData = {
+                ...values,
+                photographUri,
+            };
+
             const response = await axios.post(
                 `${BACKEND_URL}/api/user/register`,
-                values
+                registrationData
             );
 
             if (response.status === 201) {
@@ -123,9 +150,18 @@ export default function Register() {
                             name="photographUri"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Photograph URL</FormLabel>
+                                    <FormLabel>Photograph</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="e.g., http://example.com/photo.jpg" {...field} className="text-gray-900" />
+                                        <Input
+                                            type="file"
+                                            onChange={(e) => {
+                                                const files = e.target?.files;
+                                                if (files && files.length > 0) {
+                                                    field.onChange(files[0]);
+                                                }
+                                            }}
+                                            className="text-gray-900"
+                                        />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

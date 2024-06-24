@@ -51,7 +51,7 @@ export const options: NextAuthOptions = {
             email: user.email,
             contactNumber: '',
             password: '',
-            photographUri: '',
+            photographUri: user.image,
             status: 'Offline',
             contacts: [],
           });

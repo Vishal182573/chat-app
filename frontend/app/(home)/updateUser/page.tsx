@@ -25,7 +25,7 @@ const formSchema = z.object({
     username: z.string().min(2, { message: "Username must be at least 2 characters." }).optional(),
     contactNumber: z.string().min(10, { message: "Contact number must be at least 10 digits." }).optional(),
     password: z.string().min(6, { message: "Password must be at least 6 characters." }).optional(),
-    photographUri: z.string().optional(),
+    photographUri: z.instanceof(File).refine(file => file.size > 0, { message: "File is required" }).optional(),
 });
 
 export default function UserUpdatePage() {
@@ -50,27 +50,47 @@ export default function UserUpdatePage() {
             username: currentUser?.username || "",
             contactNumber: currentUser?.contactnumber || "",
             password: "",
-            photographUri: currentUser?.photographUri || "",
+            photographUri: undefined,
         },
     });
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
-        // Ensure the required username field is present
-        if (!values.username) {
-            alert("Username is required");
-            return;
-        }
 
-        // Merge the current user details with the new values
+        let photographUri = currentUser?.photographUri || "";
+
+        if (values.photographUri) {
+            const formData = new FormData();
+            formData.append('image', values.photographUri);
+
+            try {
+                const uploadResponse = await axios.post(
+                    `${BACKEND_URL}/api/image/upload`,
+                    formData,
+                    {
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                        },
+                    }
+                );
+
+                if (uploadResponse.status === 201) {
+                    photographUri = uploadResponse.data.imageUrl;
+                } else {
+                    throw new Error("Image upload failed");
+                }
+            } catch (error: any) {
+                console.error("Image upload error:", error);
+                alert(error.message);
+                return;
+            }
+        }
         const updatedValues = {
             username: values.username || currentUser?.username,
             email: currentUser?.email, // Add email from session
             contactNumber: values.contactNumber || currentUser?.contactnumber,
             password: values.password,
-            photographUri: values.photographUri || currentUser?.photographUri,
+            photographUri,
         };
-
-        console.log(updatedValues);
 
         try {
             const response = await axios.post(
@@ -148,9 +168,18 @@ export default function UserUpdatePage() {
                             name="photographUri"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Photograph URL</FormLabel>
+                                    <FormLabel>Photograph</FormLabel>
                                     <FormControl>
-                                        <Input {...field} className="text-gray-900" />
+                                        <Input
+                                            type="file"
+                                            onChange={(e) => {
+                                                const files = e.target?.files;
+                                                if (files && files.length > 0) {
+                                                    field.onChange(files[0]);
+                                                }
+                                            }}
+                                            className="text-gray-900"
+                                        />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

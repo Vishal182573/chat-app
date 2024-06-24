@@ -41,9 +41,14 @@ export default function Sidebar({ userIds, onUserClick }: SidebarProps) {
               <div className="text-xs text-gray-500">{user.status}</div>
             </div>
             <Avatar className="border border-black mr-5">
+              {user.photographUri?
               <AvatarFallback>
-                <Image alt={user.username} src={APPLOGO} width="50" />
+                <Image alt={user.username} src={user.photographUri} width={50} height={50}/>
+              </AvatarFallback>:
+              <AvatarFallback>
+                <Image alt={user.username} src={APPLOGO} width={50} height={50} />
               </AvatarFallback>
+              }
             </Avatar>
           </div>
         ))}

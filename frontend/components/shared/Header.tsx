@@ -86,10 +86,18 @@ export default function MainHeader() {
                             <DropdownMenuTrigger>
                                 <FaEllipsisV size={21} className="lg:hidden" />
                                 <Avatar className="border mr-5 hidden lg:block text-black" >
-                                    <AvatarFallback>
-                                        {/* <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" /> */}
-                                        {currentUser?.username.charAt(0).toUpperCase()}
-                                    </AvatarFallback>
+                                    {currentUser?.photographUri ?
+                                        <AvatarFallback>
+                                            <Image
+                                                src={currentUser?.photographUri || ''}
+                                                alt="profile"
+                                                height={50}
+                                                width={50}
+                                            />
+                                        </AvatarFallback> :
+                                        <AvatarFallback>
+                                            {currentUser?.username.charAt(0).toUpperCase()}
+                                        </AvatarFallback>}
                                 </Avatar>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="h-screen lg:h-fit space-y-12 flex flex-col items-center font-bold bg-black text-white py-7 ">
