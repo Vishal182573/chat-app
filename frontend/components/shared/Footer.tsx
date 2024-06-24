@@ -32,17 +32,15 @@ export default function Footer() {
       getUser();
     }, [])
     return (
-        <footer className="w-full bg-black rounded-lg lg:p-1 text-xs lg:text-md">
-          <section className="flex justify-between">
+        <footer className="w-full bg-black rounded-lg flex justify-between items-center text-sm lg:text-md h-10 mb-3 p-4">
             <div className="lg:ml-5">
               Username :- {currentUser?.username}
             </div>
             <div className="flex lg:mr-6">
-             <div className="mr-2 text-xs">{currentUser? "Logged In": "Not Signed "}
+             <div className="mr-2">{currentUser? "Logged In": "Not Signed "}
              </div>
              <div className={`bg-${color}-500 rounded-full w-2 h-2`}></div>
             </div>
-            </section>
         </footer>
     )
 }

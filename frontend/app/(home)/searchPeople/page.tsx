@@ -62,39 +62,35 @@ export default function About() {
       }
     }
     if (status === "loading") {
-      return <div>Loading...</div>;
+      return <div className="text-4xl flex justify-center items-center">Loading...</div>;
     }
   return (
     <section className="w-full h-screen flex justify-center items-center p-3">
-      <div className="w-full h-full bg-slate-950 opacity-90 rounded-2xl p-12">
-        <Input onChange={(e)=>{setPrefix(e.target.value)}} className="mb-4" placeholder="Enter name to search"/>
-        <ScrollArea className="h-[70vh] w-full border-white border-[1px] rounded-lg text-white">
-            <div className="p-4">
-                <h2 className="text-2xl font-bold text-center sticky top-2 bg-slate-600 rounded-lg">People List</h2>
-                {users.map((user,index) => (
-                    <div className="p-4 border rounded-lg border-white mt-2 flex justify-between items-center cursor-pointer" onClick={() => handleClick(user)} key={index}>
-                        <div className="flex flex-col space-y-1 text-white">
-                            <div key={user.username} className="font-bold">
-                                {user.username}
+            <div className="w-full h-full bg-slate-950 opacity-90 rounded-2xl p-12">
+                <Input onChange={(e) => setPrefix(e.target.value)} className="mb-4" placeholder="Enter name to search" />
+                <ScrollArea className="h-[70vh] w-full text-white">
+                    <div className="p-4 flex flex-col justify-center items-center">
+                        <h2 className="text-2xl font-bold text-center sticky top-2 bg-slate-600 rounded-lg py-2 w-full mx-6">People List</h2>
+                        {users.map((user, index) => (
+                            <div
+                                className="p-4 border rounded-lg border-white mt-4 flex justify-between items-center cursor-pointer transition duration-300 ease-in-out transform hover:scale-105 w-11/12"
+                                onClick={() => handleClick(user)}
+                                key={index}
+                            >
+                                <div className="flex flex-col space-y-1 text-white">
+                                    <div className="font-bold">{user.username}</div>
+                                    <div className="text-xs">{user.status}</div>
+                                </div>
+                                <Avatar className="border border-black">
+                                    <AvatarFallback>
+                                        <Image src={APPLOGO} alt="@CN" width="50" height="50" />
+                                    </AvatarFallback>
+                                </Avatar>
                             </div>
-                            <div key={user.status} className="text-xs">
-                                {user.status}
-                            </div>
-                        </div>
-                        <Avatar className="border border-black mr-5" >
-                            <AvatarFallback>
-                                <Image
-                                    alt="@CN"
-                                    src={APPLOGO}
-                                    width="50"
-                                />
-                            </AvatarFallback>
-                        </Avatar>
+                        ))}
                     </div>
-                ))}
+                </ScrollArea>
             </div>
-        </ScrollArea>
-      </div>
-    </section>
+        </section>
   );
 }

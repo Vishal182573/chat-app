@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -18,22 +18,13 @@ import { useRouter } from "next/navigation";
 import { BACKEND_URL } from "@/global/constants";
 
 // Define the schema using zod
-const formSchema = z
-    .object({
-        username: z.string().min(2, {
-            message: "Username must be at least 2 characters.",
-        }),
-        email: z.string().email({
-            message: "Must be a valid email address.",
-        }),
-        contactNumber: z.string().min(10, {
-            message: "Contact number must be at least 10 digits.",
-        }),
-        password: z.string().min(6, {
-            message: "Password must be at least 6 characters.",
-        }),
-        photographUri: z.string(),
-    })
+const formSchema = z.object({
+    username: z.string().min(2, { message: "Username must be at least 2 characters." }),
+    email: z.string().email({ message: "Must be a valid email address." }),
+    contactNumber: z.string().min(10, { message: "Contact number must be at least 10 digits." }),
+    password: z.string().min(6, { message: "Password must be at least 6 characters." }),
+    photographUri: z.string(),
+});
 
 export default function Register() {
     const router = useRouter();
@@ -57,7 +48,7 @@ export default function Register() {
             );
 
             if (response.status === 201) {
-                alert("User registered succesfully")
+                alert("User registered successfully");
                 router.push("/auth/signin");
                 console.log("Success:", response.data);
             } else {
@@ -70,16 +61,11 @@ export default function Register() {
     }
 
     return (
-        <section className="w-full h-screen flex justify-center items-center p-3 ">
-            <div className="w-full h-full bg-slate-950 opacity-90 rounded-2xl flex justify-center p-8">
+        <section className="w-full h-screen flex justify-center items-center p-10">
+            <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-8 transform transition-all hover:scale-105">
+                <h1 className="text-3xl font-bold text-gray-900 mb-6 text-center">Register</h1>
                 <Form {...form}>
-                    <form
-                        onSubmit={form.handleSubmit(onSubmit)}
-                        className="space-y-5 flex flex-col justify-start p-10 rounded-2xl w-[500px] border-white border-[1px] text-sm font-bold text-white"
-                    >
-                        <div className="font-bold text-3xl text-center mb-6">Register</div>
-
-
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                         <FormField
                             control={form.control}
                             name="username"
@@ -106,7 +92,6 @@ export default function Register() {
                                 </FormItem>
                             )}
                         />
-
                         <FormField
                             control={form.control}
                             name="contactNumber"
@@ -120,7 +105,6 @@ export default function Register() {
                                 </FormItem>
                             )}
                         />
-
                         <FormField
                             control={form.control}
                             name="password"
@@ -128,7 +112,7 @@ export default function Register() {
                                 <FormItem>
                                     <FormLabel>Password</FormLabel>
                                     <FormControl>
-                                        <Input type="password" {...field} className="text-gray-900" placeholder="vishal@123" />
+                                        <Input type="password" placeholder="Your password" {...field} className="text-gray-900" />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -139,15 +123,17 @@ export default function Register() {
                             name="photographUri"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Upload Photograph</FormLabel>
+                                    <FormLabel>Photograph URL</FormLabel>
                                     <FormControl>
-                                        <Input type="photographUri" {...field} className="text-gray-900"/>
+                                        <Input placeholder="e.g., http://example.com/photo.jpg" {...field} className="text-gray-900" />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
-                        <Button type="submit" className="bg-blue-500">Register</Button>
+                        <Button type="submit" className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                            Register
+                        </Button>
                     </form>
                 </Form>
             </div>

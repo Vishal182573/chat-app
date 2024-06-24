@@ -8,8 +8,6 @@ const fontSans = FontSans({
   variable: "--font-sans",
 })
 import { cn } from "@/lib/utils"
-import Image from "next/image";
-import { BG1 } from "@/public";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -25,15 +23,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body  className={cn(
-          "min-h-screen bg-background font-sans antialiased",
+          "min-h-screen bg-background font-sans antialiase bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500",
           fontSans.variable,
           inter.className
         )}>
-        <Image
-        alt="Background image"
-        src={BG1}
-        className="h-full w-screen bg-content absolute z-0"
-        />
         <AuthProvider>
         {children}
         </AuthProvider>

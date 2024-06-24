@@ -8,8 +8,8 @@ import {
     AvatarImage,
 } from "@/components/ui/avatar"
 import { Button } from "../ui/button"
-import Link from "next/link"
-import { MdMenu } from 'react-icons/md';
+import Link from "next/link";
+import { FaEllipsisV } from 'react-icons/fa';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -42,30 +42,30 @@ export default function MainHeader() {
     }, [session]);
 
     const userLogout = async () => {
-        try{
+        try {
             const response = await axios.get(`${BACKEND_URL}/api/user/logout?email=${session?.user?.email}`)
-            if(response.status==201){
+            if (response.status == 201) {
                 router.push('/api/auth/signout')
             }
             else {
                 alert("Something went wrong")
             }
-        }catch(err:any){
-            console.log("Error",err.message)
+        } catch (err: any) {
+            console.log("Error", err.message)
         }
     };
     return (
-        <header className="w-full p-2 rounded-2xl  bg-blue-500 z-50">
+        <header className="w-full p-2 rounded-2xl  bg-blue-500 z-50 text-black">
             <section className="flex justify-between items-center lg:px-2">
-                <div className="flex justify-between items-center font-bold space-x-5 lg:text-xl text-xs">
+                <div className="flex justify-between items-center font-bold space-x-5 lg:text-xl ">
                     <Image
                         alt="app-logo"
                         src={APPLOGO}
-                        className="rounded-full w-6 lg:w-18"
+                        className="rounded-full w-6 lg:w-12"
                     />
                     <span>V-chat</span>
                 </div>
-                <div className="flex justify-between items-center lg:space-x-12 px-7">
+                <div className="flex justify-between items-center lg:space-x-16 px-7">
                     <Button variant={"ghost"} className="hidden lg:block">
                         <Link href={"/"}>
                             Home
@@ -76,24 +76,24 @@ export default function MainHeader() {
                             About
                         </Link>
                     </Button>
-                    <div className="flex justify-end items-center ">
-                        <Button variant={"ghost"} size={"sm"} className="text-xs w">
+                    <div className="flex items-center ">
+                        <Button variant={"ghost"} size={"sm"} className="mr-4">
                             <Link href={"/searchPeople"}>
                                 Search People
                             </Link>
                         </Button>
                         <DropdownMenu >
                             <DropdownMenuTrigger>
-                                <MdMenu size={25} className="lg:hidden" />
+                                <FaEllipsisV size={21} className="lg:hidden" />
                                 <Avatar className="border mr-5 hidden lg:block text-black" >
                                     <AvatarFallback>
                                         {/* <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" /> */}
-                                        {currentUser?.username.charAt(0).toUpperCase() }
+                                        {currentUser?.username.charAt(0).toUpperCase()}
                                     </AvatarFallback>
                                 </Avatar>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent className="h-screen lg:h-fit space-y-5 flex flex-col items-center font-bold">
-                                <DropdownMenuLabel className="lg:hidden">Navigation Menu</DropdownMenuLabel>
+                            <DropdownMenuContent className="h-screen lg:h-fit space-y-12 flex flex-col items-center font-bold bg-black text-white py-7 ">
+                                <Button variant={"destructive"} onClick={userLogout}>Logout</Button>
                                 <DropdownMenuItem className="lg:hidden">
                                     <Link href={"/"}>
                                         Home
@@ -111,11 +111,8 @@ export default function MainHeader() {
                                 </DropdownMenuItem>
                                 <DropdownMenuItem>
                                     <Link href={"/updateUser"}>
-                                        Update UserInfo
+                                        Update Profile
                                     </Link>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                    <Button variant={"destructive"} onClick={userLogout}>Logout</Button>
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>

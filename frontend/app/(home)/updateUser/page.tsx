@@ -92,19 +92,15 @@ export default function UserUpdatePage() {
     }
 
     if (!currentUser) {
-        return <div>Loading...</div>;
+        return <div className="flex justify-center items-center h-screen">Loading...</div>;
     }
 
     return (
-        <section className="w-full h-screen flex justify-center items-center p-3">
-            <div className="w-full h-full bg-slate-950 opacity-90 rounded-2xl flex justify-center p-2">
+        <section className="w-full h-screen flex justify-center items-center p-10">
+            <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-8 transform transition-all hover:scale-105">
+                <h1 className="text-3xl font-bold text-gray-900 mb-6 text-center">Update Your Details</h1>
                 <Form {...form}>
-                    <form
-                        onSubmit={form.handleSubmit(onSubmit)}
-                        className="space-y-6 flex flex-col p-10 rounded-2xl w-[500px] border-white border-[1px] text-sm font-bold text-white"
-                    >
-                        <div className="font-bold text-3xl text-center">Update Details</div>
-
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                         <FormField
                             control={form.control}
                             name="username"
@@ -138,7 +134,7 @@ export default function UserUpdatePage() {
                             name="password"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Set Password</FormLabel>
+                                    <FormLabel>Password</FormLabel>
                                     <FormControl>
                                         <Input type="password" {...field} className="text-gray-900" />
                                     </FormControl>
@@ -152,7 +148,7 @@ export default function UserUpdatePage() {
                             name="photographUri"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Upload Photograph</FormLabel>
+                                    <FormLabel>Photograph URL</FormLabel>
                                     <FormControl>
                                         <Input {...field} className="text-gray-900" />
                                     </FormControl>
@@ -161,7 +157,9 @@ export default function UserUpdatePage() {
                             )}
                         />
 
-                        <Button type="submit" className="bg-blue-500">Update</Button>
+                        <Button type="submit" className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                            Update
+                        </Button>
                     </form>
                 </Form>
             </div>

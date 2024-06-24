@@ -1,6 +1,6 @@
 import React from "react";
-import { MdSend } from "react-icons/md"; // Import the send icon from react-icons
-import { Input, InputProps } from "../ui/input"; // Adjust the path if necessary
+import { MdSend } from "react-icons/md";
+import { Input, InputProps } from "../ui/input";
 import { cn } from "@/lib/utils";
 
 interface InputWithSendButtonProps extends InputProps {
@@ -21,6 +21,7 @@ const InputWithSendButton = React.forwardRef<HTMLInputElement, InputWithSendButt
           type={type}
           className={cn(
             "pr-10", // Add padding to the right to make space for the button
+            "break-all", // Ensure text wraps to next line when needed
             className
           )}
           ref={ref}

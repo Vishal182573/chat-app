@@ -120,23 +120,25 @@ export default function Chat({ user }: UserProps) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
   };
-
+  if(user.username === "Unknown"){
+    return <div className="text-white font-semibold text-sm flex justify-center items-center w-full h-full">Click on any user to start conversation or add contacts from search people</div>
+  }
   return (
-    <section className="w-full lg:flex flex-col border-blue-500 border-2 rounded-2xl p-2 text-sm font-bold lg:h-[75vh] lg:flex-1 overflow-hidden">
-      <div className="w-full bg-slate-700 border-[1px] border-white p-3 rounded-xl flex justify-between items-center">
+    <section className="w-full flex flex-col border-blue-500 border-2 rounded-2xl p-2 text-sm font-bold h-[75vh] lg:flex-1 overflow-hidden">
+      <div className="w-full bg-slate-700 border-[1px] border-white p-3 rounded-xl flex justify-between items-center mb-2">
         <div className="flex justify-center items-center space-x-4">
-          <div>{user.username}</div>
-          {otherUserTyping && <div>Typing...</div>}
+          <div className="text-white">{user.username}</div>
+          {otherUserTyping && <div className="text-green-500">Typing...</div>}
         </div>
-        <div>Status: {user.status}</div>
+        <div className="text-white">Status: {user.status}</div>
       </div>
-      <div ref={scrollAreaRef} className="flex-1 p-4 h-[50vh] lg:h-[30rem] overflow-y-auto flex flex-col-reverse">
+      <div ref={scrollAreaRef} className="flex-1 p-4 overflow-y-auto flex flex-col-reverse">
         {chats.map((chat, index) => (
           <div
             key={index}
             className={`flex justify-${chat.userId === user.userId ? "start" : "end"} mb-4`}
           >
-            <div className={`p-2 my-2 border-[2px] text-xs lg:text-sm rounded-lg border-white ${chat.userId === user.userId ? "rounded-bl-none" : "rounded-br-none"} max-w-[80%] lg:max-w-[60%]`}>
+            <div className={`p-2 my-2 border-[2px] text-xs lg:text-sm rounded-lg border-white ${chat.userId === user.userId ? "bg-black rounded-bl-none" : "bg-black rounded-br-none"} max-w-[80%] lg:max-w-[60%]`}>
               {chat.message}
             </div>
           </div>
