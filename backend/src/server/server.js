@@ -4,6 +4,7 @@ import connectDb from "./config/dbconnection.js";
 import cors from "cors";
 import userKeRoutes from "./routes/userRoutes.js";
 import chatKeRoutes from "./routes/chatRoutes.js";
+import uploadKeRoutes from './routes/uploadRoutes.js';
 import {FRONTEND_URL} from "./constants.js"
 
 // Import Socket.IO
@@ -35,6 +36,7 @@ app.use(
 // Use routes
 app.use("/api/user", userKeRoutes);
 app.use("/api/chat", chatKeRoutes);
+app.use("/api/image",uploadKeRoutes);
 app.get("/",(req,res)=>{
   res.send("server is working");
 })

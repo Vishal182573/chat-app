@@ -46,7 +46,7 @@ const RegisterUser = asyncHandler(async (req, res) => {
     email,
     contactNumber,
     password,
-    photographUri: "V",
+    photographUri,
     status: "Offline",
     contacts: [],
   });
