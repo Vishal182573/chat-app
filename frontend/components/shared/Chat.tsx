@@ -136,7 +136,7 @@ export default function Chat({ user }: UserProps) {
         {chats.map((chat, index) => (
           <div
             key={index}
-            className={`flex justify-${chat.userId === user.userId ? "start" : "end"} mb-4`}
+            className={`flex ${chat.userId === user.userId ? "justify-start" : "justify-end"} mb-4`}
           >
             <div className={`p-2 my-2 border-[2px] text-xs lg:text-sm rounded-lg border-white ${chat.userId === user.userId ? "bg-black rounded-bl-none" : "bg-black rounded-br-none"} max-w-[80%] lg:max-w-[60%]`}>
               {chat.message}
