@@ -2,63 +2,78 @@
 
 import { useEffect, useState } from 'react';
 import { getProviders, signIn, ClientSafeProvider } from 'next-auth/react';
-import { Button } from '../../../components/ui/button';
+import { useRouter } from 'next/navigation';
 import { FaGithub, FaGoogle } from 'react-icons/fa';
 import SignInForm from '../../../components/forms/SignInForm';
-import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 export default function SignInPage() {
-  const router = useRouter();
-  const [providers, setProviders] = useState<Record<string, ClientSafeProvider> | null>(null);
+    const itemVariants = {
+        hidden: { opacity: 0, y: 20 },
+        visible: {
+          opacity: 1,
+          y: 0,
+          transition: {
+            duration: 0.5,
+            ease: "easeOut"
+          }
+        }
+      };
+    const router = useRouter();
+    const [providers, setProviders] = useState<Record<string, ClientSafeProvider> | null>(null);
 
-  useEffect(() => {
-    (async () => {
-      const res = await getProviders();
-      setProviders(res);
-    })();
-  }, []);
+    useEffect(() => {
+        (async () => {
+            const res = await getProviders();
+            setProviders(res);
+        })();
+    }, []);
 
-  const handleSignIn = (providerId: string) => {
-    signIn(providerId, { callbackUrl: '/' }); // Redirect to the home page after sign in
-  };
+    const handleSignIn = (providerId: string) => {
+        signIn(providerId, { callbackUrl: '/' });
+    };
 
-  if (!providers) {
-    return <div className="flex justify-center items-center h-screen text-4xl">Loading...</div>;
-  }
+    if (!providers) {
+        return <div className="flex justify-center items-center h-screen text-4xl">Loading...</div>;
+    }
 
-  return (
-    <section className="w-full h-screen flex justify-center items-center p-10">
-      <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-8 transform transition-all hover:scale-105">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6 text-center">Login</h1>
-        <div className="space-y-4">
-          {Object.values(providers).map((provider) => (
-            <div key={provider.name} className="mt-4">
-              {provider.name === "Credentials" ? (
-                <SignInForm provider={provider} />
-              ) : (
-                <Button
-                  variant="outline"
-                  onClick={() => handleSignIn(provider.id)}
-                  className="flex items-center w-full justify-center p-3 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-                >
-                  {provider.name === "GitHub" && <FaGithub className="mr-2 text-lg" />}
-                  Sign in with {provider.name}
-                </Button>
-              )}
-            </div>
-          ))}
-        </div>
-        <div className="text-center mt-6">
-          <span>Don't have an account? </span>
-          <button
-            type="button"
-            className="text-blue-500 hover:text-blue-700 font-bold"
-            onClick={() => router.push("/auth/register")}
-          >
-            Register
-          </button>
-        </div>
-      </div>
-    </section>
-  );
+    return (
+        <motion.div className="w-full min-h-screen flex justify-center items-center p-4 bg-white" variants={itemVariants} initial="hidden" animate="visible">
+            <Card className="w-full max-w-md">
+                <CardHeader>
+                    <CardTitle className="text-3xl font-bold text-center">Welcome Back</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    {Object.values(providers).map((provider) => (
+                        <div key={provider.name}>
+                            {provider.name === "Credentials" ? (
+                                <SignInForm provider={provider} />
+                            ) : (
+                                <Button
+                                    variant="outline"
+                                    onClick={() => handleSignIn(provider.id)}
+                                    className="w-full"
+                                >
+                                    {provider.name === "GitHub" && <FaGithub className="mr-2" />}
+                                    {provider.name === "Google" && <FaGoogle className="mr-2" />}
+                                    Sign in with {provider.name}
+                                </Button>
+                            )}
+                        </div>
+                    ))}
+                </CardContent>
+                <CardFooter className="flex justify-center">
+                    <p className="text-sm text-gray-600">
+                        Don't have an account?{" "}
+                        <Button variant="link" className="p-0" onClick={() => router.push("/auth/register")}>
+                            Register
+                        </Button>
+                    </p>
+                </CardFooter>
+            </Card>
+        </motion.div>
+    );
 }

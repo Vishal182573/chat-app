@@ -1,17 +1,19 @@
-"use client";
+'use client';
 
-import Image from "next/image"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { SidebarProps, User } from "@/global/types"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { APPLOGO } from "@/public"
-import { useEffect, useState } from "react"
-import axios from "axios"
-import { BACKEND_URL } from "@/global/constants"
+import Image from "next/image";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { SidebarProps, User } from "@/global/types";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { APPLOGO } from "@/public";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { BACKEND_URL } from "@/global/constants";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 export default function Sidebar({ userIds, onUserClick }: SidebarProps) {
   const [users, setUsers] = useState<User[]>([]);
-  
+
   useEffect(() => {
     const getUsers = async () => {
       try {
@@ -25,34 +27,39 @@ export default function Sidebar({ userIds, onUserClick }: SidebarProps) {
     };
     getUsers();
   }, [userIds]);
-  
+
   return (
-    <div className="p-4">
-      <h2 className="text-2xl font-bold mb-4">Contacts List</h2>
-      <ScrollArea className="h-[60vh] overflow-y-auto">
-        {users.map((user, index) => (
-          <div
-            key={index}
-            className="p-4 border rounded-lg border-white mt-2 flex justify-between items-center cursor-pointer hover:bg-gray-100 transition duration-200 hover:text-black "
-            onClick={() => { onUserClick(user) }}
-          >
-            <div className="flex flex-col space-y-1">
-              <div className="font-bold ">{user.username}</div>
-              <div className="text-xs text-gray-500">{user.status}</div>
+    <Card className="h-full">
+      <CardHeader>
+        <h2 className="text-2xl font-bold">Contacts List</h2>
+      </CardHeader>
+      <CardContent className="p-0">
+        <ScrollArea className="h-[calc(100vh-16rem)] px-4">
+          {users.map((user, index) => (
+            <div
+              key={index}
+              className="py-2 px-4 my-2 rounded-lg flex items-center space-x-4 cursor-pointer hover:bg-slate-400 transition duration-200"
+              onClick={() => onUserClick(user)}
+            >
+              <Avatar className="h-12 w-12">
+                {user.photographUri ? (
+                  <AvatarImage src={user.photographUri} alt={user.username} />
+                ) : (
+                  <AvatarFallback>
+                    <Image alt={user.username} src={APPLOGO} width={50} height={50} />
+                  </AvatarFallback>
+                )}
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{user.username}</p>
+                <Badge  className="mt-1">
+                  {user.status}
+                </Badge>
+              </div>
             </div>
-            <Avatar className="border border-black mr-5">
-              {user.photographUri?
-              <AvatarFallback>
-                <Image alt={user.username} src={user.photographUri} width={50} height={50}/>
-              </AvatarFallback>:
-              <AvatarFallback>
-                <Image alt={user.username} src={APPLOGO} width={50} height={50} />
-              </AvatarFallback>
-              }
-            </Avatar>
-          </div>
-        ))}
-      </ScrollArea>
-    </div>
-  )
+          ))}
+        </ScrollArea>
+      </CardContent>
+    </Card>
+  );
 }

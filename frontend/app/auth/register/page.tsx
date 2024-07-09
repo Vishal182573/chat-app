@@ -3,8 +3,13 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Button } from "../../../components/ui/button";
 import axios from "axios";
+import { useRouter } from "next/navigation";
+import { BACKEND_URL } from "@/global/constants";
+import { FaUser, FaEnvelope, FaPhone, FaLock, FaImage } from 'react-icons/fa';
+import { motion } from "framer-motion";
+
+import { Button } from "@/components/ui/button";
 import {
     Form,
     FormControl,
@@ -12,12 +17,10 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-} from "../../../components/ui/form";
-import { Input } from "../../../components/ui/input";
-import { useRouter } from "next/navigation";
-import { BACKEND_URL } from "@/global/constants";
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 
-// Define the schema using zod
 const formSchema = z.object({
     username: z.string().min(2, { message: "Username must be at least 2 characters." }),
     email: z.string().email({ message: "Must be a valid email address." }),
@@ -27,6 +30,17 @@ const formSchema = z.object({
 });
 
 export default function Register() {
+    const itemVariants = {
+        hidden: { opacity: 0, y: 20 },
+        visible: {
+          opacity: 1,
+          y: 0,
+          transition: {
+            duration: 0.5,
+            ease: "easeOut"
+          }
+        }
+      };
     const router = useRouter();
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -86,93 +100,82 @@ export default function Register() {
             alert(error.message);
         }
     }
-
     return (
-        <section className="w-full h-screen flex justify-center items-center p-10">
-            <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-8 transform transition-all hover:scale-105">
-                <h1 className="text-3xl font-bold text-gray-900 mb-6 text-center">Register</h1>
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                        <FormField
-                            control={form.control}
-                            name="username"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Username</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="e.g., johndoe" {...field} className="text-gray-900" />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="email"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Email</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="e.g., john.doe@example.com" {...field} className="text-gray-900" />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="contactNumber"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Contact Number</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="e.g., 1234567890" {...field} className="text-gray-900" />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="password"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Password</FormLabel>
-                                    <FormControl>
-                                        <Input type="password" placeholder="Your password" {...field} className="text-gray-900" />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="photographUri"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Photograph</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            type="file"
-                                            onChange={(e) => {
-                                                const files = e.target?.files;
-                                                if (files && files.length > 0) {
-                                                    field.onChange(files[0]);
-                                                }
-                                            }}
-                                            className="text-gray-900"
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <Button type="submit" className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                            Register
+        <motion.div className="w-full min-h-screen flex justify-center items-center p-4 bg-white shadow-2xl" variants={itemVariants} initial="hidden" animate="visible">
+            <Card className="w-full max-w-md">
+                <CardHeader>
+                    <CardTitle className="text-3xl font-bold text-center">Create Account</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <Form {...form}>
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                            {[
+                                { name: "username", label: "Username", icon: <FaUser className="mr-2" />, placeholder: "e.g., johndoe" },
+                                { name: "email", label: "Email", icon: <FaEnvelope className="mr-2" />, placeholder: "e.g., john.doe@example.com" },
+                                { name: "contactNumber", label: "Contact Number", icon: <FaPhone className="mr-2" />, placeholder: "e.g., 1234567890" },
+                                { name: "password", label: "Password", icon: <FaLock className="mr-2" />, placeholder: "Your password", type: "password" },
+                            ].map((field) => (
+                                <FormField
+                                    key={field.name}
+                                    control={form.control}
+                                    name={field.name as "username" | "email" | "contactNumber" | "password"}
+                                    render={({ field: formField }) => (
+                                        <FormItem>
+                                            <FormLabel>{field.label}</FormLabel>
+                                            <FormControl>
+                                                <div className="flex items-center">
+                                                    {field.icon}
+                                                    <Input
+                                                        placeholder={field.placeholder}
+                                                        {...formField}
+                                                        type={field.type || "text"}
+                                                    />
+                                                </div>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            ))}
+                            <FormField
+                                control={form.control}
+                                name="photographUri"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Photograph</FormLabel>
+                                        <FormControl>
+                                            <div className="flex items-center">
+                                                <FaImage className="mr-2" />
+                                                <Input
+                                                    type="file"
+                                                    onChange={(e) => {
+                                                        const files = e.target?.files;
+                                                        if (files && files.length > 0) {
+                                                            field.onChange(files[0]);
+                                                        }
+                                                    }}
+                                                />
+                                            </div>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <Button type="submit" className="w-full">
+                                Create Account
+                            </Button>
+                        </form>
+                    </Form>
+                </CardContent>
+                <CardFooter className="flex justify-center">
+                    <p className="text-sm text-gray-600">
+                        Already have an account?{" "}
+                        <Button variant="link" className="p-0" onClick={() => router.push("/auth/signin")}>
+                            Sign In
                         </Button>
-                    </form>
-                </Form>
-            </div>
-        </section>
+                    </p>
+                </CardFooter>
+            </Card>
+        </motion.div>
     );
 }

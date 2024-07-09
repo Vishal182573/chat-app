@@ -7,9 +7,9 @@ import {
     AvatarFallback,
     AvatarImage,
 } from "@/components/ui/avatar"
-import { Button } from "../ui/button"
-import Link from "next/link";
-import { FaEllipsisV } from 'react-icons/fa';
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
+import { FaEllipsisV, FaHome, FaInfoCircle, FaSearch, FaUser, FaSignOutAlt, FaUserEdit } from 'react-icons/fa'
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -21,10 +21,10 @@ import {
 import axios from "axios"
 import { useRouter } from "next/navigation"
 import { BACKEND_URL } from "@/global/constants"
-import { useSession, signIn } from "next-auth/react";
+import { useSession, signIn } from "next-auth/react"
 import { useState, useEffect } from "react"
 import { User } from "@/global/types"
-
+import { Card, CardContent } from "@/components/ui/card"
 
 export default function MainHeader() {
     const { data: session, status } = useSession({
@@ -54,79 +54,101 @@ export default function MainHeader() {
             console.log("Error", err.message)
         }
     };
+
     return (
-        <header className="w-full p-2 rounded-2xl  bg-blue-500 z-50 text-black">
-            <section className="flex justify-between items-center lg:px-2">
-                <div className="flex justify-between items-center font-bold space-x-5 lg:text-xl ">
-                    <Image
-                        alt="app-logo"
-                        src={APPLOGO}
-                        className="rounded-full w-6 lg:w-12"
-                    />
-                    <span>V-chat</span>
-                </div>
-                <div className="flex justify-between items-center lg:space-x-16 px-7">
-                    <Button variant={"ghost"} className="hidden lg:block">
-                        <Link href={"/"}>
-                            Home
-                        </Link>
-                    </Button>
-                    <Button variant={"ghost"} className="hidden lg:block">
-                        <Link href={"/about"}>
-                            About
-                        </Link>
-                    </Button>
-                    <div className="flex items-center ">
-                        <Button variant={"ghost"} size={"sm"} className="mr-4">
-                            <Link href={"/searchPeople"}>
+        <Card className="w-full">
+            <CardContent className="p-4">
+                <div className="flex justify-between items-center">
+                    <div className="flex items-center space-x-4">
+                        <Image
+                            alt="app-logo"
+                            src={APPLOGO}
+                            className="rounded-full w-8 h-8 lg:w-12 lg:h-12"
+                        />
+                        <span className="font-bold text-xl lg:text-2xl">V-chat</span>
+                    </div>
+                    <nav className="hidden lg:flex items-center space-x-6">
+                        <Button variant="ghost" asChild>
+                            <Link href="/">
+                                <FaHome className="mr-2" />
+                                Home
+                            </Link>
+                        </Button>
+                        <Button variant="ghost" asChild>
+                            <Link href="/about">
+                                <FaInfoCircle className="mr-2" />
+                                About
+                            </Link>
+                        </Button>
+                        <Button variant="outline" asChild>
+                            <Link href="/searchPeople">
+                                <FaSearch className="mr-2" />
                                 Search People
                             </Link>
                         </Button>
-                        <DropdownMenu >
-                            <DropdownMenuTrigger>
-                                <FaEllipsisV size={21} className="lg:hidden" />
-                                <Avatar className="border mr-5 hidden lg:block text-black" >
-                                    {currentUser?.photographUri ?
-                                        <AvatarFallback>
-                                            <Image
-                                                src={currentUser?.photographUri || ''}
-                                                alt="profile"
-                                                height={50}
-                                                width={50}
-                                            />
-                                        </AvatarFallback> :
+                    </nav>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="lg:hidden">
+                                <FaEllipsisV size={21} />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="hidden lg:flex items-center space-x-2">
+                                <Avatar>
+                                    {currentUser?.photographUri ? (
+                                        <AvatarImage src={currentUser.photographUri} alt="profile" />
+                                    ) : (
                                         <AvatarFallback>
                                             {currentUser?.username.charAt(0).toUpperCase()}
-                                        </AvatarFallback>}
+                                        </AvatarFallback>
+                                    )}
                                 </Avatar>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent className="h-screen lg:h-fit space-y-12 flex flex-col items-center font-bold bg-black text-white py-7 ">
-                                <Button variant={"destructive"} onClick={userLogout}>Logout</Button>
-                                <DropdownMenuItem className="lg:hidden">
-                                    <Link href={"/"}>
-                                        Home
-                                    </Link>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem className="lg:hidden">
-                                    <Link href={"/about"}>
-                                        About
-                                    </Link>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem >
-                                    <Link href={"/userInfo"}>
-                                        Profile
-                                    </Link>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                    <Link href={"/updateUser"}>
-                                        Update Profile
-                                    </Link>
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </div>
+                                <span>{currentUser?.username}</span>
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="w-56">
+                            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem className="lg:hidden">
+                                <Link href="/" className="flex items-center">
+                                    <FaHome className="mr-2" />
+                                    Home
+                                </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="lg:hidden">
+                                <Link href="/about" className="flex items-center">
+                                    <FaInfoCircle className="mr-2" />
+                                    About
+                                </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="lg:hidden">
+                                <Link href="/searchPeople" className="flex items-center">
+                                    <FaSearch className="mr-2" />
+                                    Search People
+                                </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                                <Link href="/userInfo" className="flex items-center">
+                                    <FaUser className="mr-2" />
+                                    Profile
+                                </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                                <Link href="/updateUser" className="flex items-center">
+                                    <FaUserEdit className="mr-2" />
+                                    Update Profile
+                                </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={userLogout}>
+                                <FaSignOutAlt className="mr-2" />
+                                Logout
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
-            </section>
-        </header>
+            </CardContent>
+        </Card>
     )
 }

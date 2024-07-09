@@ -1,15 +1,16 @@
-"use client";
+'use client';
 
 import { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
 import Chat from "./Chat";
 import { User } from "@/global/types";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 import { IoMdArrowBack } from 'react-icons/io';
-import { ScrollArea } from "../ui/scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useSession, signIn } from "next-auth/react";
 import { BACKEND_URL } from "@/global/constants";
 import axios from "axios";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default function Main() {
   const { data: session, status } = useSession({
@@ -63,18 +64,20 @@ export default function Main() {
   }
 
   return (
-    <main className="w-full p-2 rounded-2xl h-[75vh] flex-1 lg:mt-4">
-      <section className="flex justify-start items-center h-full">
-        <ScrollArea className={`${list} lg:block h-full w-full lg:w-96 flex-2`}>
-          <Sidebar userIds={contacts} onUserClick={handleUserClick} />
-        </ScrollArea>
-        <div className={`${chatShow} lg:block h-full w-full`}>
-          <Button variant={"ghost"} size={"sm"} onClick={() => { setChatShow("hidden"); setList("block"); }} className="lg:hidden">
-            <IoMdArrowBack /> Go back
-          </Button>
-          <Chat user={clickedUser} />
+    <Card className="w-full mt-4">
+      <CardContent className="p-2 h-full">
+        <div className="flex h-full gap-4">
+          <ScrollArea className={`${list} lg:block h-full w-full lg:w-96`}>
+            <Sidebar userIds={contacts} onUserClick={handleUserClick} />
+          </ScrollArea>
+          <div className={`${chatShow} lg:block h-full w-full`}>
+            <Button variant="outline" size="sm" onClick={() => { setChatShow("hidden"); setList("block"); }} className="lg:hidden mb-2">
+              <IoMdArrowBack className="mr-2" /> Go back
+            </Button>
+            <Chat user={clickedUser} />
+          </div>
         </div>
-      </section>
-    </main>
+      </CardContent>
+    </Card>
   );
 }

@@ -1,13 +1,19 @@
+'use client';
+
 import { Chats, User } from "@/global/types";
-import { InputWithSendButton } from "../forms/InputWithSend";
 import { useEffect, useState, useRef, ChangeEvent } from "react";
 import axios from "axios";
 import io from "socket.io-client";
 import { BACKEND_URL } from "@/global/constants";
 import { useSession, signIn } from "next-auth/react";
-import { Avatar, AvatarFallback } from "../ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import Image from "next/image";
 import { APPLOGO } from "@/public";
+import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
 
 interface UserProps {
   user: User;
@@ -124,50 +130,69 @@ export default function Chat({ user }: UserProps) {
     }
   };
   if(user.username === "Unknown"){
-    return <div className="text-white font-semibold text-sm flex justify-center items-center w-full h-full">Click on any user to start conversation or add contacts from search people</div>
+    return (
+      <Card className="w-full h-full flex items-center justify-center text-muted-foreground">
+        Click on any user to start conversation or add contacts from search people
+      </Card>
+    );
   }
   return (
-    <section className="w-full flex flex-col border-blue-500 border-2 rounded-2xl p-2 text-sm font-bold h-[75vh] lg:flex-1 overflow-hidden">
-      <div className="w-full bg-slate-700 border-[1px] border-white p-3 rounded-xl flex justify-between items-center mb-2">
-        <div className="flex justify-center items-center space-x-4">
-          <div className="text-white">{user.username}</div>
-          {otherUserTyping && <div className="text-green-500">Typing...</div>}
-        </div>
-        <div className="text-white flex justify-center items-center space-x-6">
-          <div className="">
-          Status: {user.status}
-          </div>
-        <Avatar className="border border-black ">
-              {user.photographUri?
-              <AvatarFallback>
-                <Image alt={user.username} src={user.photographUri} width={50} height={50}/>
-              </AvatarFallback>:
-              <AvatarFallback>
-                <Image alt={user.username} src={APPLOGO} width={50} height={50} />
-              </AvatarFallback>
-              }
+    <Card className="w-full flex flex-col h-[75vh] lg:flex-1 overflow-hidden border-2 border-black">
+      <CardHeader className="bg-primary text-primary-foreground">
+        <div className="flex justify-between items-center h-6">
+          <div className="flex items-center space-x-4">
+            <Avatar className="border-2 border-primary-foreground">
+              {user.photographUri ? (
+                <AvatarFallback>
+                  <Image alt={user.username} src={user.photographUri} width={50} height={50}/>
+                </AvatarFallback>
+              ) : (
+                <AvatarFallback>
+                  <Image alt={user.username} src={APPLOGO} width={50} height={50} />
+                </AvatarFallback>
+              )}
             </Avatar>
-        </div>
-      </div>
-      <div ref={scrollAreaRef} className="flex-1 p-4 overflow-y-auto flex flex-col-reverse">
-        {chats.map((chat, index) => (
-          <div
-            key={index}
-            className={`flex ${chat.userId === user.userId ? "justify-start" : "justify-end"} mb-4`}
-          >
-            <div className={`p-2 my-2 border-[2px] text-xs lg:text-sm rounded-lg border-white ${chat.userId === user.userId ? "bg-black rounded-bl-none" : "bg-black rounded-br-none"} max-w-[80%] lg:max-w-[60%]`}>
-              {chat.message}
+            <div>
+              <h2 className="font-semibold">{user.username}</h2>
+              <Badge >
+                {user.status}
+              </Badge>
             </div>
           </div>
-        ))}
-      </div>
-      <InputWithSendButton
-        className="p-5 w-full bg-slate-500 rounded-2xl"
-        value={message}
-        onChange={handleChange}
-        onSubmit={handleSubmit}
-        placeholder="Type your message..."
-      />
-    </section>
+          {otherUserTyping && (
+            <Badge variant="outline" className="animate-pulse text-white">
+              Typing...
+            </Badge>
+          )}
+        </div>
+      </CardHeader>
+      <CardContent className="flex-1 p-4 overflow-hidden">
+        <ScrollArea ref={scrollAreaRef} className="h-full">
+          <div className="flex flex-col-reverse space-y-reverse space-y-4">
+            {chats.map((chat, index) => (
+              <div
+                key={index}
+                className={`flex ${chat.userId === user.userId ? "justify-start" : "justify-end"}`}
+              >
+                <div className={`p-3 rounded-lg ${chat.userId === user.userId ? "bg-secondary text-secondary-foreground" : "bg-primary text-primary-foreground"} max-w-[80%] lg:max-w-[60%]`}>
+                  {chat.message}
+                </div>
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
+      </CardContent>
+      <CardFooter>
+        <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="flex w-full space-x-2">
+          <Input
+            value={message}
+            onChange={handleChange}
+            placeholder="Type your message..."
+            className="flex-1"
+          />
+          <Button type="submit">Send</Button>
+        </form>
+      </CardFooter>
+    </Card>
   );
 }
